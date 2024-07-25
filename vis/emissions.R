@@ -50,20 +50,30 @@ data1$Constellation = factor(
   levels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'),
   labels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'))
 
+# Calculate total emissions per constellation
+total_emissions1 <- data1 %>%
+  group_by(Constellation) %>%
+  summarise(total_emission_value = round(sum(emission_value)))
+
+max_emission1 <- max(total_emissions1$total_emission_value)
+
 c_constellation_emissions <-
   ggplot(data1, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
   theme_minimal() +
   labs(
+    title = "Total Greenhouse Gas Emissions for Satellite Megaconstellations",
+    subtitle = "Aggregated emissions across various impact categories for all satellite megaconstellations with >150 satellites",
     colour = NULL,
     x = NULL,
     fill = NULL
   ) +
-  ylab("Greenhouse Gas Emissions (kg CO2e)") + 
+  ylab("Greenhouse Gas Emissions (kt CO2e)") + 
   scale_y_continuous(
     labels = comma,
-    expand = c(0, 0)
+    expand = c(0, 0),
+    limits = c(0, max_emission1 * 1.1)
   ) +
   theme(
     legend.position = "none",
@@ -78,10 +88,11 @@ c_constellation_emissions <-
     axis.text.y = element_text(size = 6),
     axis.line.x  = element_line(size = 0.15),
     axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 8, face = "bold"),
-    plot.title = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 8, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
+  ) +
+  geom_text(data = total_emissions1, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 2)
 
 filename2 = "per_subscriber_emissions.csv"
 data2 <- read.csv(file.path(folder, '../results', filename2))
@@ -125,12 +136,21 @@ data2$Constellation = factor(
   levels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'),
   labels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'))
 
+# Calculate total emissions per constellation
+total_emissions2 <- data2 %>%
+  group_by(Constellation) %>%
+  summarise(total_emission_value = round(sum(emission_value)))
+
+max_emission2 <- max(total_emissions2$total_emission_value)
+
 d_per_subscriber_emissions <-
   ggplot(data2, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
   theme_minimal() +
   labs(
+    title = "Greenhouse Gas Emissions per Subscriber for Satellite Megaconstellations",
+    subtitle = "Emissions per subscriber across various impact categories for all satellite megaconstellations with >150 satellites",
     colour = NULL,
     x = NULL,
     fill = NULL
@@ -138,7 +158,8 @@ d_per_subscriber_emissions <-
   ylab("Greenhouse Gas Emissions (kg CO2e)") + 
   scale_y_continuous(
     labels = comma,
-    expand = c(0, 0)
+    expand = c(0, 0),
+    limits = c(0, max_emission2 * 1.1)
   ) +
   theme(
     legend.position = "none",
@@ -153,10 +174,11 @@ d_per_subscriber_emissions <-
     axis.text.y = element_text(size = 6),
     axis.line.x  = element_line(size = 0.15),
     axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 8, face = "bold"),
-    plot.title = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 8, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
+  ) +
+  geom_text(data = total_emissions2, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 2)
 
 filename3 = "per_launch_emissions.csv"
 data3 <- read.csv(file.path(folder, '../results', filename3))
@@ -200,20 +222,30 @@ data3$Constellation = factor(
   levels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'),
   labels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'))
 
+# Calculate total emissions per constellation
+total_emissions3 <- data3 %>%
+  group_by(Constellation) %>%
+  summarise(total_emission_value = round(sum(emission_value)))
+
+max_emission3 <- max(total_emissions3$total_emission_value)
+
 e_per_launch_emissions <-
   ggplot(data3, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
   theme_minimal() +
   labs(
+    title = "Greenhouse Gas Emissions per Launch for Satellite Megaconstellations",
+    subtitle = "Emissions per launch across various impact categories for all satellite megaconstellations with >150 satellites",
     colour = NULL,
     x = NULL,
     fill = "Impact Category"
   ) +
-  ylab("Greenhouse Gas Emissions (kg CO2e)") + 
+  ylab("Greenhouse Gas Emissions (t CO2e)") + 
   scale_y_continuous(
     labels = comma,
-    expand = c(0, 0)
+    expand = c(0, 0),
+    limits = c(0, max_emission3 * 1.1)
   ) +
   guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
   theme(
@@ -232,10 +264,11 @@ e_per_launch_emissions <-
     axis.text.y = element_text(size = 6),
     axis.line.x  = element_line(size = 0.15),
     axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 8, face = "bold"),
-    plot.title = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 8, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
+  ) +
+  geom_text(data = total_emissions3, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 2)
 
 f_emissions <- ggarrange(
   c_constellation_emissions, 

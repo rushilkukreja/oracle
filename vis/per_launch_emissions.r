@@ -59,7 +59,7 @@ emissions_plot <-
     x = NULL,
     fill = "Impact Category"
   ) +
-  ylab("Greenhouse Gas Emissions (kg CO2e)") + 
+  ylab("Greenhouse Gas Emissions (t CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0)
