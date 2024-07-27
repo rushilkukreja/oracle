@@ -5,4 +5,4 @@ Welcome to the Open-source Rocket and Constellation Lifecycle Emissions
 
 ## Team
 - Rushil Kukreja, Thomas Jefferson High School for Science and Technology.
-- Edward Oughton, George Mason University.
+- Edward J. Oughton, George Mason University.
