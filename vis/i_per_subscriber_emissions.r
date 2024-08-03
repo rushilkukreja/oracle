@@ -86,7 +86,7 @@ emissions_plot <-
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-path = file.path(visualizations, 'd_per_subscriber_emissions.png')
+path = file.path(visualizations, 'i_per_subscriber_emissions.png')
 dir.create(visualizations, showWarnings = FALSE)
 png(
   path,

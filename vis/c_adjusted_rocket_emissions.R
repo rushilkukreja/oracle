@@ -7,7 +7,7 @@ library(scales)
 
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 visualizations = file.path(folder, 'figures')
-filename = "rocket_emissions.csv"
+filename = "adjusted_rocket_emissions.csv"
 data <- read.csv(file.path(folder, '../results', filename))
 
 data = select(
@@ -80,13 +80,13 @@ emissions_plot <-
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-path = file.path(visualizations, 'b_rocket_emissions.png')
+path = file.path(visualizations, 'c_adjusted_rocket_emissions.png')
 dir.create(visualizations, showWarnings = FALSE)
 png(
   path,
   units = "in",
-  width = 6,
-  height = 4,
+  width = 8.5,
+  height = 5,
   res = 480
 )
 print(emissions_plot)
