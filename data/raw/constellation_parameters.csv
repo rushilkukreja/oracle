@@ -1,0 +1,6 @@
+Constellation,Astra,BlueWalker,Cinnamon-937,Flock,Globalstar,Guowang,Hanwha,Honghu-3,HVNET,KLEO,Kuiper,Lacuna
+Number of satellites,"13,620",243,"337,323",150,"3,080","12,992","2,000","10,000","1,440",300,"3,232",240
+Launch vehicle,Electron,Falcon 9,Electron,Falcon 9,Falcon 9,Long March 5,Nuri,Zhuque-2,Falcon Heavy,Kuaizhou-1A,Atlas V,Soyuz-FG
+Satellites per rocket (kg),2,2,4,41,1,22,8,2,10,2,27,2
+Satellite mass,280,"1,500",10,5,700,190,280,50,280,80,650,10
+Subscriber factor,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5
