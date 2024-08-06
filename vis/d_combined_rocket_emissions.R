@@ -173,6 +173,7 @@ combined_plot <- ggarrange(emissions_plot1, emissions_plot2, ncol = 1, nrow = 2)
 combined_plot <- ggarrange(
   emissions_plot1, emissions_plot2,
   ncol = 1, nrow = 2,
+  heights = c(1, 1.1),
   labels = c("A", "B")
 )
 
