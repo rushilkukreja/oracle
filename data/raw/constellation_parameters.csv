@@ -1,6 +1,5 @@
-Constellation,Astra,BlueWalker,Cinnamon-937,Flock,Globalstar,Guowang,Hanwha,Honghu-3,HVNET,KLEO,Kuiper,Lacuna
-Number of satellites,"13,620",243,"337,323",150,"3,080","12,992","2,000","10,000","1,440",300,"3,232",240
-Launch vehicle,Electron,Falcon 9,Electron,Falcon 9,Falcon 9,Long March 5,Nuri,Zhuque-2,Falcon Heavy,Kuaizhou-1A,Atlas V,Soyuz-FG
-Satellites per rocket (kg),2,2,4,41,1,22,8,2,10,2,27,2
-Satellite mass,280,"1,500",10,5,700,190,280,50,280,80,650,10
-Subscriber factor,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5
+Constellation,Astra,BlueWalker,Cinnamon-937,Flock,Globalstar,Guowang,Hanwha,Honghu-3,HVNET,KLEO,Kuiper,Lacuna,Lightspeed,Lynk,Omni,OneWeb,Rassvet,Semaphore-C,SferaCon,Starlink (Gen2),Swarm,Xingshidai,Xingwang,Yinhe
+Number of satellites,"13,620",243,"337,323",150,"3,080","12,992","2,000","10,000","1,440",300,"3,232",240,300,"2,000",200,"7,088",900,"116,640",640,"39,396",150,200,966,"1,000"
+Launch vehicle,Electron,Falcon 9,Electron,Falcon 9,Falcon 9,Long March 5,Nuri,Zhuque-2,Falcon Heavy,Kuaizhou-1A,Atlas V,Soyuz-FG,Falcon 9,Falcon 9,Falcon 9,Falcon 9,Soyuz-FG,Electron,Soyuz-FG,Starship,Falcon 9,Long March 5,Long March 5,Long March 5
+Satellites per rocket,2,2,4,41,1,22,8,2,10,2,27,2,18,10,10,16,3,4,3,60,12,8,3,6
+Satellite mass (kg),280,"1,500",10,5,700,190,280,50,280,80,650,10,750,25,5,150,280,10,200,260,472,25,280,227

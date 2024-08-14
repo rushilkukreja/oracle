@@ -1,6 +1,0 @@
-Constellation,Lightspeed,Lynk,Omni,OneWeb,Rassvet,Semaphore-C,SferaCon,Starlink (Gen2),Swarm,Xingshidai,Xingwang,Yinhe
-Number of satellites,300,"2,000",200,"7,088",900,"116,640",640,"39,396",150,200,966,"1,000"
-Launch vehicle,Falcon 9,Falcon 9,Falcon 9,Falcon 9,Soyuz-FG,Electron,Soyuz-FG,Starship,Falcon 9,Long March 5,Long March 5,Long March 5
-Satellites per rocket (kg),18,10,10,16,3,4,3,60,12,8,3,6
-Satellite mass,750,25,5,150,280,10,200,260,472,25,280,227
-Subscriber factor,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5,489.5
