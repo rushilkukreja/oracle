@@ -1,4 +1,4 @@
-# Load the necessary libraries
+# Load necessary libraries
 library(ggpubr)
 library(ggplot2)
 library(dplyr)
@@ -10,7 +10,7 @@ library(scales)
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 visualizations = file.path(folder, 'figures')
 
-# Load data for constellations emissions
+# Load data for constellation emissions
 filename = "constellation_emissions.csv"
 data <- read.csv(file.path(folder, '../results', filename))
 
@@ -34,6 +34,17 @@ data$Launcher.Transportation <- as.numeric(gsub(",", "", data$Launcher.Transport
 data$Electricity.Consumption <- as.numeric(gsub(",", "", data$Electricity.Consumption))
 data$Propulsion.System <- as.numeric(gsub(",", "", data$Propulsion.System))
 
+# Calculate total emissions by constellation before pivoting
+total_emissions1 <- data %>%
+  group_by(Constellation) %>%
+  summarise(total_emission_value = sum(
+    Launch.Event, Launcher.Production, Electronics.Production, 
+    Launcher.Transportation, Electricity.Consumption, Propulsion.System, 
+    na.rm = TRUE
+  ))
+
+max_emission1 <- max(total_emissions1$total_emission_value, na.rm = TRUE)
+
 # Pivot data for plotting
 data <- pivot_longer(
   data,
@@ -52,20 +63,10 @@ data$impact_category = factor(
     "Launch Event", "Launcher Production", "Electronics Production",
     "Launcher Transportation", "Electricity Consumption", "Propulsion System"))
 
-# Set factor levels for constellations
-data$Constellation = factor(
-  data$Constellation,
-  levels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'),
-  labels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'))
-
-# Calculate total emissions for constellations
-data <- data %>%
-  group_by(Constellation) %>%
-  mutate(total_emissions = sum(emission_value))
-
 # Calculate proportion of emissions
 data <- data %>%
-  mutate(proportion = emission_value / total_emissions)
+  group_by(Constellation) %>%
+  mutate(proportion = emission_value / sum(emission_value, na.rm = TRUE))
 
 # Plot B - GHG emissions by constellations
 c_constellation_emissions <-
@@ -78,7 +79,7 @@ c_constellation_emissions <-
     subtitle = "Emissions across various impact categories\nfor all satellite megaconstellations with >150 satellites",
     colour = NULL,
     x = NULL,
-    fill = NULL # Remove "Impact Category" from legend
+    fill = NULL
   ) +
   ylab("Greenhouse Gas Emissions (kt CO2e)") + 
   scale_y_continuous(
@@ -105,14 +106,14 @@ c_constellation_emissions <-
   ) +
   geom_text(data = total_emissions1, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 3)
 
-# Load constellation emissions by country for graph D
-filename_country = "constellation_emissions_by_country.csv"
-data_country <- read.csv(file.path(folder, '../results', filename_country))
+# Load per_launch_emissions data
+filename_per_launch = "per_launch_emissions.csv"
+data_per_launch <- read.csv(file.path(folder, '../results', filename_per_launch))
 
-# Preprocess data for emissions by country
-data_country = select(
-  data_country, 
-  Country, 
+# Preprocess data for per_launch_emissions
+data_per_launch = select(
+  data_per_launch, 
+  Constellation, 
   Launch.Event,
   Launcher.Production,
   Electronics.Production,
@@ -122,24 +123,35 @@ data_country = select(
 )
 
 # Convert columns to numeric
-data_country$Launch.Event <- as.numeric(gsub(",", "", data_country$Launch.Event))
-data_country$Launcher.Production <- as.numeric(gsub(",", "", data_country$Launcher.Production))
-data_country$Electronics.Production <- as.numeric(gsub(",", "", data_country$Electronics.Production))
-data_country$Launcher.Transportation <- as.numeric(gsub(",", "", data_country$Launcher.Transportation))
-data_country$Electricity.Consumption <- as.numeric(gsub(",", "", data_country$Electricity.Consumption))
-data_country$Propulsion.System <- as.numeric(gsub(",", "", data_country$Propulsion.System))
+data_per_launch$Launch.Event <- as.numeric(gsub(",", "", data_per_launch$Launch.Event))
+data_per_launch$Launcher.Production <- as.numeric(gsub(",", "", data_per_launch$Launcher.Production))
+data_per_launch$Electronics.Production <- as.numeric(gsub(",", "", data_per_launch$Electronics.Production))
+data_per_launch$Launcher.Transportation <- as.numeric(gsub(",", "", data_per_launch$Launcher.Transportation))
+data_per_launch$Electricity.Consumption <- as.numeric(gsub(",", "", data_per_launch$Electricity.Consumption))
+data_per_launch$Propulsion.System <- as.numeric(gsub(",", "", data_per_launch$Propulsion.System))
+
+# Calculate total emissions for per launch data
+total_emissions_per_launch <- data_per_launch %>%
+  group_by(Constellation) %>%
+  summarise(total_emission_value = sum(
+    Launch.Event, Launcher.Production, Electronics.Production, 
+    Launcher.Transportation, Electricity.Consumption, Propulsion.System, 
+    na.rm = TRUE
+  ))
+
+max_emission_per_launch <- max(total_emissions_per_launch$total_emission_value, na.rm = TRUE)
 
 # Pivot data for plotting
-data_country <- pivot_longer(
-  data_country,
+data_per_launch <- pivot_longer(
+  data_per_launch,
   cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Propulsion.System),
   names_to = "impact_category",
   values_to = "emission_value"
 )
 
 # Set factor levels for impact categories
-data_country$impact_category = factor(
-  data_country$impact_category,
+data_per_launch$impact_category = factor(
+  data_per_launch$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
     "Launcher.Transportation", "Electricity.Consumption", "Propulsion.System"),
@@ -147,31 +159,24 @@ data_country$impact_category = factor(
     "Launch Event", "Launcher Production", "Electronics Production",
     "Launcher Transportation", "Electricity Consumption", "Propulsion System"))
 
-# Calculate total emissions by country
-total_emissions_country <- data_country %>%
-  group_by(Country) %>%
-  summarise(total_emission_value = round(mean(emission_value)))  # Calculate average emissions
-
-max_emission_country <- max(total_emissions_country$total_emission_value)
-
-# Plot D - Average GHG emissions by country
-d_country_emissions <-
-  ggplot(data_country, aes(x = Country, y = emission_value)) +
+# Plot G - Per Launch Emissions
+g_constellation_emissions <-
+  ggplot(data_per_launch, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
   theme_minimal() +
   labs(
-    title = "Average Greenhouse Gas Emissions by Country",
-    subtitle = "Average emissions across various impact categories\nfor all satellite megaconstellations by country",
+    title = "Greenhouse Gas Emissions Per Launch by Satellite Megaconstellation",
+    subtitle = "Emissions across various impact categories\nper launch for satellite megaconstellations",
     colour = NULL,
     x = NULL,
-    fill = NULL # Remove "Impact Category" from legend
+    fill = NULL
   ) +
-  ylab("Average Greenhouse Gas Emissions (kt CO2e)") + 
+  ylab("Greenhouse Gas Emissions per Launch (kt CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission_country * 1.1)
+    limits = c(0, max_emission_per_launch * 1.1)
   ) +
   theme(
     legend.position = "none",
@@ -190,66 +195,87 @@ d_country_emissions <-
     plot.subtitle = element_text(size = 10, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   ) +
-  geom_text(data = total_emissions_country, aes(x = Country, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 3)
+  geom_text(data = total_emissions_per_launch, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 3)
 
-# Plot C (emissions_plot) - remove legend
-emissions_plot <-
-  ggplot(data, aes(x = Constellation, y = proportion)) +
+# Load data for per_launch_emissions
+filename_per_launch = "per_launch_emissions.csv"
+data_per_launch <- read.csv(file.path(folder, '../results', filename_per_launch))
+
+# Preprocess data for per_launch_emissions
+data_per_launch = select(
+  data_per_launch, 
+  Constellation, 
+  Launch.Event,
+  Launcher.Production,
+  Electronics.Production,
+  Launcher.Transportation,
+  Electricity.Consumption,
+  Propulsion.System
+)
+
+# Convert columns to numeric
+data_per_launch$Launch.Event <- as.numeric(gsub(",", "", data_per_launch$Launch.Event))
+data_per_launch$Launcher.Production <- as.numeric(gsub(",", "", data_per_launch$Launcher.Production))
+data_per_launch$Electronics.Production <- as.numeric(gsub(",", "", data_per_launch$Electronics.Production))
+data_per_launch$Launcher.Transportation <- as.numeric(gsub(",", "", data_per_launch$Launcher.Transportation))
+data_per_launch$Electricity.Consumption <- as.numeric(gsub(",", "", data_per_launch$Electricity.Consumption))
+data_per_launch$Propulsion.System <- as.numeric(gsub(",", "", data_per_launch$Propulsion.System))
+
+# Calculate total emissions by constellation before pivoting
+total_emissions_per_launch <- data_per_launch %>%
+  group_by(Constellation) %>%
+  summarise(total_emission_value = sum(
+    Launch.Event, Launcher.Production, Electronics.Production, 
+    Launcher.Transportation, Electricity.Consumption, Propulsion.System, 
+    na.rm = TRUE
+  ))
+
+max_emission_per_launch <- max(total_emissions_per_launch$total_emission_value, na.rm = TRUE)
+
+# Pivot data for plotting
+data_per_launch <- pivot_longer(
+  data_per_launch,
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Propulsion.System),
+  names_to = "impact_category",
+  values_to = "emission_value"
+)
+
+# Set factor levels for impact categories
+data_per_launch$impact_category = factor(
+  data_per_launch$impact_category,
+  levels = c(
+    "Launch.Event", "Launcher.Production", "Electronics.Production",
+    "Launcher.Transportation", "Electricity.Consumption", "Propulsion.System"),
+  labels = c(
+    "Launch Event", "Launcher Production", "Electronics Production",
+    "Launcher Transportation", "Electricity Consumption", "Propulsion System"))
+
+# Calculate proportion of emissions
+data_per_launch <- data_per_launch %>%
+  group_by(Constellation) %>%
+  mutate(proportion = emission_value / sum(emission_value, na.rm = TRUE))
+
+# Plot G - Per Launch Emissions
+g_constellation_emissions <-
+  ggplot(data_per_launch, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
   theme_minimal() +
   labs(
-    title = "Greenhouse Gas Emissions by Satellite Constellation",
-    subtitle = "Percentage of total emissions across various impact categories\nfor all satellite megaconstellations with >150 satellites",
+    title = "Greenhouse Gas Emissions Per Launch by Satellite Megaconstellation",
+    subtitle = "Emissions across various impact categories\nper launch for satellite megaconstellations",
     colour = NULL,
     x = NULL,
-    fill = NULL # Remove "Impact Category" from legend
+    fill = NULL
   ) +
-  ylab("Percentage of Total Emissions") + 
-  scale_y_continuous(labels = percent, expand = c(0, 0)) +
-  guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
-  theme(
-    legend.position = "none", # Remove legend
-    legend.spacing.x = unit(0.5, 'cm'),
-    legend.text = element_text(size = 10),
-    legend.title = element_text(size = 10),
-    axis.title = element_text(size = 10),
-    axis.line = element_line(colour = "black"),
-    strip.text.x = element_blank(),
-    panel.border = element_blank(),
-    axis.title.y = element_markdown(margin = margin(r = 10)),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = 6, angle = 45, hjust = 1),
-    axis.text.y = element_text(size = 6),
-    axis.line.x  = element_line(size = 0.15),
-    axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 10, hjust = 0.5),
-    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
-    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
-
-# Plot F - Remove legend similarly
-e_per_launch_emissions <-
-  ggplot(data3, aes(x = Constellation, y = emission_value)) +
-  geom_bar(stat = "identity", aes(fill = impact_category)) +
-  scale_fill_brewer(palette = "Dark2") + 
-  theme_minimal() +
-  labs(
-    title = "Greenhouse Gas Emissions per Launch by Satellite Megaconstellation",
-    subtitle = "Emissions per launch across various impact categories\nfor all satellite megaconstellations with >150 satellites",
-    colour = NULL,
-    x = NULL,
-    fill = NULL # Remove "Impact Category" from legend
-  ) +
-  ylab("Greenhouse Gas Emissions (t CO2e)") + 
+  ylab("Greenhouse Gas Emissions per Launch (kt CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission3 * 1.1)
+    limits = c(0, max_emission_per_launch * 1.1)
   ) +
   theme(
-    legend.position = "none", # Remove legend
+    legend.position = "none",
     axis.title = element_text(size = 10),
     axis.line = element_line(colour = "black"),
     strip.text.x = element_blank(),
@@ -265,33 +291,89 @@ e_per_launch_emissions <-
     plot.subtitle = element_text(size = 10, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   ) +
-  geom_text(data = total_emissions3, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 3)
+  geom_text(data = total_emissions_per_launch, aes(x = Constellation, y = total_emission_value, label = comma(total_emission_value)), vjust = -0.5, size = 3)
+# Define folder paths
+folder <- dirname(rstudioapi::getSourceEditorContext()$path)
+visualizations <- file.path(folder, 'figures')
 
-# Arrange the plots in a 2-column, 3-row layout with a common legend at the bottom
-f_emissions <- ggarrange(
+# Load data for reusability emissions
+filename_reusability <- "reusability3.csv"
+data_reusability <- read.csv(file.path(folder, '../results', filename_reusability))
+
+# Preprocess data for reusability emissions
+data_reusability <- data_reusability %>%
+  pivot_longer(
+    cols = -Reusable, # Exclude the "Reusable" column
+    names_to = "impact_category",
+    values_to = "emission_value"
+  )
+
+# Set factor levels for impact categories
+data_reusability$impact_category <- factor(
+  data_reusability$impact_category,
+  levels = c(
+    "Launch.Event", "Launcher.Production", "Electronics.Production",
+    "Launcher.Transportation", "Electricity.Consumption", "Propulsion.System"),
+  labels = c(
+    "Launch Event", "Launcher Production", "Electronics Production",
+    "Launcher Transportation", "Electricity Consumption", "Propulsion System")
+)
+
+# Plot H - Emissions for Reusable vs Non-Reusable Rockets
+h_reusability_emissions <-
+  ggplot(data_reusability, aes(x = Reusable, y = emission_value, fill = impact_category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_brewer(palette = "Dark2") + 
+  theme_minimal() +
+  labs(
+    title = "Greenhouse Gas Emissions by Reusability",
+    subtitle = "Comparison of emissions for reusable vs. non-reusable rockets\nacross various impact categories",
+    x = NULL,
+    y = "Greenhouse Gas Emissions (kt CO2e)",
+    fill = NULL
+  ) +
+  theme(
+    legend.position = "right",
+    axis.title = element_text(size = 10),
+    axis.line = element_line(colour = "black"),
+    strip.text.x = element_blank(),
+    panel.border = element_blank(),
+    axis.title.y = element_markdown(margin = margin(r = 10)),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(size = 10, angle = 0, hjust = 0.5),
+    axis.text.y = element_text(size = 8),
+    axis.line.x = element_line(size = 0.15),
+    axis.line.y = element_line(size = 0.15),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+  )
+
+# Update the panel plot
+f_emissions_updated <- ggarrange(
   c_constellation_emissions, 
-  e_per_launch_emissions,
+  d_country_emissions,
   emissions_plot,
-  d_country_emissions,  # New graph D
-  e_per_launch_emissions,
-  emissions_plot,
+  f_size_vs_emissions,  
+  h_reusability_emissions,
+  g_constellation_emissions,
   ncol = 2, 
   nrow = 3,
   heights = c(1, 1, 1.1),
-  labels = c("A", "B", "C", "D", "E", "F"), # Labeling for each graph
+  labels = c("A", "B", "C", "D", "E", "F"),
   common.legend = TRUE, 
-  legend = "bottom" # Common legend at the bottom
+  legend = "bottom"
 )
 
-# Save the plot as a PNG file
-path_combined = file.path(visualizations, 'g_combined_constellation_emissions.png')
-dir.create(visualizations, showWarnings = FALSE)
+# Save the updated panel plot
+path_combined_updated = file.path(visualizations, 'g_combined_constellation_emissions.png')
 png(
-  path_combined,
+  path_combined_updated,
   units = "in",
-  width = 12,  # Adjusting the width for 2-column layout
+  width = 12,
   height = 12,
   res = 300
 )
-print(f_emissions)
+print(f_emissions_updated)
 dev.off()

@@ -1,3 +1,4 @@
+# Load necessary libraries
 library(ggpubr)
 library(ggplot2)
 library(dplyr)
@@ -5,51 +6,15 @@ library(tidyverse)
 library(scales)
 library(ggtext)
 
+# Define folder paths
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
-visualizations = file.path(folder, 'figures')
+visualizations <- file.path(folder, 'figures')
 dir.create(visualizations, showWarnings = FALSE)
 
-filename1 = "subscribers.csv"
-data1 <- read.csv(file.path(folder, '../data/raw', filename1))
-data1 = select(data1, Constellation, Subscribers)
-data1$Subscribers <- as.numeric(gsub(",", "", data1$Subscribers))
-data1$Constellation = factor(
-  data1$Constellation,
-  levels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'),
-  labels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'))
-
-emissions_plot1 <-
-  ggplot(data1, aes(x = Constellation, y = Subscribers)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  theme_minimal() +
-  labs(
-    x = NULL,
-    y = "Number of Subscribers",
-    title = "Number of Subscribers by Satellite Constellation",
-    subtitle = "Subscribers for all satellite megaconstellations with >150 satellites"
-  ) +
-  scale_y_continuous(
-    labels = comma,
-    expand = c(0, 0)
-  ) +
-  theme(
-    axis.title = element_text(size = 10),
-    axis.line = element_line(colour = "black"),
-    panel.border = element_blank(),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-    axis.text.y = element_text(size = 10),
-    axis.line.x  = element_line(size = 0.15),
-    axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 10, hjust = 0.5),
-    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
-    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
-
-filename2 = "per_subscriber_emissions.csv"
+# Load data for emissions_plot2
+filename2 <- "per_subscriber_emissions.csv"
 data2 <- read.csv(file.path(folder, '../results', filename2))
-data2 = select(
+data2 <- select(
   data2, 
   Constellation, 
   Launch.Event,
@@ -66,21 +31,18 @@ data2 <- pivot_longer(
   values_to = "emission_value"
 )
 data2$emission_value <- as.numeric(gsub(",", "", data2$emission_value))
-data2$impact_category = factor(
+data2$impact_category <- factor(
   data2$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
     "Launcher.Transportation", "Electricity.Consumption", "Propulsion.System"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Propulsion System"))
-data2$Constellation = factor(
-  data2$Constellation,
-  levels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'),
-  labels = c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe'))
+    "Launcher Transportation", "Electricity Consumption", "Propulsion System")
+)
 
-emissions_plot2 <-
-  ggplot(data2, aes(x = Constellation, y = emission_value)) +
+# Create the first emissions plot
+emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
   theme_minimal() +
@@ -118,20 +80,122 @@ emissions_plot2 <-
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-combined_plot <- ggarrange(
-  emissions_plot1, emissions_plot2,
-  ncol = 1, nrow = 2,
-  heights = c(1, 1.1),
-  labels = c("A", "B")
+# Load data for the scatterplot
+filename3 <- "subscribers_emissions.csv"
+data3 <- read.csv(file.path(folder, '../results', filename3))
+data3$Subscribers <- as.numeric(gsub(",", "", data3$Subscribers))
+data3$Emissions <- as.numeric(gsub(",", "", data3$Emissions))
+
+# Create scatterplot
+scatter_plot <- ggplot(data3, aes(x = Subscribers, y = Emissions)) +
+  geom_point(size = 3, color = "blue", alpha = 0.7) +
+  theme_minimal() +
+  labs(
+    title = "Relationship Between Subscribers and Emissions",
+    subtitle = "Scatterplot of emissions versus number of subscribers for satellite constellations",
+    x = "Number of Subscribers",
+    y = "Greenhouse Gas Emissions (kg CO2e)"
+  ) +
+  scale_x_continuous(labels = comma) +
+  scale_y_continuous(labels = comma) +
+  theme(
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    axis.title = element_text(size = 10),
+    panel.grid.major = element_line(color = "gray", linetype = "dashed"),
+    panel.grid.minor = element_blank()
+  )
+
+# Load data for the bar chart (3rd graph)
+filename4 <- "subscriber_emissions_by_country.csv"
+data4 <- read.csv(file.path(folder, '../results', filename4))
+data4 <- pivot_longer(
+  data4,
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Propulsion.System),
+  names_to = "impact_category",
+  values_to = "emission_value"
+)
+data4$emission_value <- as.numeric(gsub(",", "", data4$emission_value))
+data4$impact_category <- factor(
+  data4$impact_category,
+  levels = c(
+    "Launch.Event", "Launcher.Production", "Electronics.Production",
+    "Launcher.Transportation", "Electricity.Consumption", "Propulsion.System"),
+  labels = c(
+    "Launch Event", "Launcher Production", "Electronics Production",
+    "Launcher Transportation", "Electricity Consumption", "Propulsion System")
 )
 
-path_combined = file.path(visualizations, 'j_combined_subscriber_emissions.png')
+# Create bar chart for countries
+country_bar_chart <- ggplot(data4, aes(x = Country, y = emission_value, fill = impact_category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  labs(
+    title = "Emissions by Country",
+    subtitle = "Greenhouse gas emissions per subscriber by country",
+    x = "Country",
+    y = "Emissions (kg CO2e)",
+    fill = "Impact Category"
+  ) +
+  scale_y_continuous(labels = comma) +
+  theme(
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5)
+  )
+
+# Load data for reusability chart (4th graph)
+filename5 <- "reusability4.csv"
+data5 <- read.csv(file.path(folder, '../results', filename5))
+data5 <- pivot_longer(
+  data5,
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Propulsion.System),
+  names_to = "impact_category",
+  values_to = "emission_value"
+)
+data5$emission_value <- as.numeric(gsub(",", "", data5$emission_value))
+data5$Reusable <- factor(data5$Reusable, levels = c("Non-Reusable", "Reusable"))
+
+# Create bar chart for reusability
+reusability_bar_chart <- ggplot(data5, aes(x = Reusable, y = emission_value, fill = impact_category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
+  labs(
+    title = "Reusable vs Non-Reusable Rockets",
+    subtitle = "Greenhouse gas emissions by rocket reusability",
+    x = "Rocket Type",
+    y = "Emissions (kg CO2e)",
+    fill = "Impact Category"
+  ) +
+  scale_y_continuous(labels = comma) +
+  theme(
+    axis.text.x = element_text(size = 10),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5)
+  )
+
+# Combine plots in a 2x3 grid with updated 4th plot
+combined_plot <- ggarrange(
+  emissions_plot, scatter_plot, country_bar_chart,
+  reusability_bar_chart,
+  ncol = 2, nrow = 2,
+  labels = c("A", "B", "C", "D"),
+  common.legend = TRUE,
+  legend = "bottom"
+)
+
+# Save the combined panel plot
+output_path <- file.path(visualizations, 'j_combined_subscriber_emissions.png')
 png(
-  path_combined,
+  output_path,
   units = "in",
-  width = 9,
-  height = 11,
-  res = 480
+  width = 12,
+  height = 8,
+  res = 300
 )
 print(combined_plot)
 dev.off()
