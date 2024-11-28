@@ -21,7 +21,7 @@ rct_second_half <- rct_transposed[, 5:ncol(rct_transposed)]
 folder_tables <- file.path(folder, 'figures', 'tables')
 dir.create(folder_tables, showWarnings = FALSE, recursive = TRUE)
 
-filename_first = 'rocket_parameters_table_1.png'
+filename_first = 'b_rocket_parameters_table_1.png'
 path_first = file.path(folder_tables, filename_first)
 png(
   path_first,
@@ -39,7 +39,7 @@ grid.newpage()
 grid.draw(table_grob_first)
 dev.off()
 
-filename_second = 'rocket_parameters_table_2.png'
+filename_second = 'b_rocket_parameters_table_2.png'
 path_second = file.path(folder_tables, filename_second)
 png(
   path_second,

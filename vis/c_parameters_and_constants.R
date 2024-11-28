@@ -215,7 +215,7 @@ f_emissions <- ggarrange(dry_mass_plot, payload_capacity_plot, satellites_plot,
                          labels = c("A", "B", "C", "D", "E", "F", "G", "H")
 )
 
-path_combined <- file.path(visualizations, 'parameters_and_constants.png')
+path_combined <- file.path(visualizations, 'c_parameters_and_constants.png')
 dir.create(visualizations, showWarnings = FALSE)
 png(
   path_combined,

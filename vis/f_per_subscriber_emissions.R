@@ -1,4 +1,3 @@
-# Load necessary libraries
 library(ggpubr)
 library(ggplot2)
 library(dplyr)
@@ -6,12 +5,10 @@ library(tidyverse)
 library(scales)
 library(ggtext)
 
-# Define folder paths
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 visualizations <- file.path(folder, 'figures')
 dir.create(visualizations, showWarnings = FALSE)
 
-# Load data for emissions_plot2
 filename2 <- "per_subscriber_emissions.csv"
 data2 <- read.csv(file.path(folder, '../results', filename2))
 data2 <- select(
@@ -41,7 +38,6 @@ data2$impact_category <- factor(
     "Launcher Transportation", "Electricity Consumption", "Propulsion System")
 )
 
-# Create the first emissions plot
 emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_brewer(palette = "Dark2") + 
@@ -80,13 +76,11 @@ emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-# Load data for the scatterplot
 filename3 <- "subscribers_emissions.csv"
 data3 <- read.csv(file.path(folder, '../results', filename3))
 data3$Subscribers <- as.numeric(gsub(",", "", data3$Subscribers))
 data3$Emissions <- as.numeric(gsub(",", "", data3$Emissions))
 
-# Create scatterplot
 scatter_plot <- ggplot(data3, aes(x = Subscribers, y = Emissions)) +
   geom_point(size = 3, color = "blue", alpha = 0.7) +
   theme_minimal() +
@@ -108,7 +102,6 @@ scatter_plot <- ggplot(data3, aes(x = Subscribers, y = Emissions)) +
     panel.grid.minor = element_blank()
   )
 
-# Load data for the bar chart (3rd graph)
 filename4 <- "subscriber_emissions_by_country.csv"
 data4 <- read.csv(file.path(folder, '../results', filename4))
 data4 <- pivot_longer(
@@ -128,7 +121,6 @@ data4$impact_category <- factor(
     "Launcher Transportation", "Electricity Consumption", "Propulsion System")
 )
 
-# Create bar chart for countries
 country_bar_chart <- ggplot(data4, aes(x = Country, y = emission_value, fill = impact_category)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_brewer(palette = "Set2") +
@@ -147,8 +139,7 @@ country_bar_chart <- ggplot(data4, aes(x = Country, y = emission_value, fill = i
     plot.subtitle = element_text(size = 10, hjust = 0.5)
   )
 
-# Load data for reusability chart (4th graph)
-filename5 <- "reusability4.csv"
+filename5 <- "reusability_per_subscriber.csv"
 data5 <- read.csv(file.path(folder, '../results', filename5))
 data5 <- pivot_longer(
   data5,
@@ -159,7 +150,6 @@ data5 <- pivot_longer(
 data5$emission_value <- as.numeric(gsub(",", "", data5$emission_value))
 data5$Reusable <- factor(data5$Reusable, levels = c("Non-Reusable", "Reusable"))
 
-# Create bar chart for reusability
 reusability_bar_chart <- ggplot(data5, aes(x = Reusable, y = emission_value, fill = impact_category)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_brewer(palette = "Pastel1") +
@@ -178,7 +168,6 @@ reusability_bar_chart <- ggplot(data5, aes(x = Reusable, y = emission_value, fil
     plot.subtitle = element_text(size = 10, hjust = 0.5)
   )
 
-# Combine plots in a 2x3 grid with updated 4th plot
 combined_plot <- ggarrange(
   emissions_plot, scatter_plot, country_bar_chart,
   reusability_bar_chart,
@@ -188,8 +177,7 @@ combined_plot <- ggarrange(
   legend = "bottom"
 )
 
-# Save the combined panel plot
-output_path <- file.path(visualizations, 'j_combined_subscriber_emissions.png')
+output_path <- file.path(visualizations, 'f_per_subscriber_emissions.png')
 png(
   output_path,
   units = "in",

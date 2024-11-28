@@ -255,7 +255,7 @@ reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value,
   )
 
 # Graph E
-reusability2_data <- read.csv(file.path(folder, '../results', 'reusability2.csv'))
+reusability2_data <- read.csv(file.path(folder, '../results', 'reusability_rockets.csv'))
 
 reusability2_data <- reusability2_data %>%
   pivot_longer(
@@ -357,7 +357,7 @@ combined_plot <- ggarrange(emissions_plot1, emissions_plot2, emissions_plot3, re
 
 final_plot <- ggarrange(combined_plot, legend, ncol = 1, heights = c(10, 1))
 
-path_combined = file.path(visualizations, 'd_combined_rocket_emissions.png')
+path_combined = file.path(visualizations, 'd_rocket_emissions.png')
 dir.create(visualizations, showWarnings = FALSE)
 png(
   path_combined,

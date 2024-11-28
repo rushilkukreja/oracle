@@ -13,7 +13,7 @@ rct = read.csv(file.path(folder, '..', 'data', 'raw', "rockets_table.csv"),
 new_names <- c('Ariane-5', 'Ariane-62', 'Ariane-64', 'Atlas V', 'Falcon-9', 'Falcon-Heavy')
 colnames(rct) <- new_names
 
-filename = 'rockets_table.png'
+filename = 'a_rockets_table.png'
 folder_tables = file.path(folder, 'figures', 'tables')
 path = file.path(folder_tables, filename)
 dir.create(file.path(folder, 'figures'), showWarnings = FALSE)
@@ -38,7 +38,7 @@ rct = read.csv(file.path(folder, '..', 'data', 'raw', "rockets_table_2.csv"),
 new_names <- c('Long March-5', 'LVM3', 'New Glenn', 'Soyuz-FG', 'Starship', 'Vulcan Centaur')
 colnames(rct) <- new_names
 
-filename = 'rockets_table_2.png'
+filename = 'a_rockets_table_2.png'
 folder_tables = file.path(folder, 'figures', 'tables')
 path = file.path(folder_tables, filename)
 dir.create(file.path(folder, 'figures'), showWarnings = FALSE)

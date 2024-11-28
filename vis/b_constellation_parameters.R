@@ -22,7 +22,7 @@ new_names1 <- c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'G
 colnames(rct1) <- new_names1
 rct1_transposed <- t(rct1)
 
-filename1 = 'constellation_parameters_table.png'
+filename1 = 'b_constellation_parameters_table.png'
 folder_tables1 = file.path(folder, 'figures', 'tables')
 path1 = file.path(folder_tables1, filename1)
 dir.create(file.path(folder, 'figures'), showWarnings = FALSE)
