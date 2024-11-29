@@ -22,20 +22,21 @@ neutral_colors <- c(
   "darkorange" = "#FF8C00"
 )
 
-satellites_plot <- ggplot(satellites_data, aes(x = Constellation, y = Satellites)) +
+satellites_plot <- ggplot(satellites_data, aes(x = Constellation, y = Satellites / 1000)) +
   geom_bar(stat = "identity", fill = neutral_colors["steelblue"]) +
-  geom_text(aes(label = Satellites), vjust = -0.3, size = 3) +
+  geom_text(aes(label = sprintf("%.1f", Satellites / 1000)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Number of Satellites by Constellation",
-    y = "Number of Satellites"
+    y = "Number of Satellites (in thousands)"
   ) +
+  scale_y_continuous(labels = scales::comma) +
   theme(
     axis.title = element_text(size = 10),
     axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
@@ -43,52 +44,55 @@ rocket_data <- read.csv(file.path(folder, '../data/raw', 'rocket_data.csv'))
 
 payload_capacity_plot <- ggplot(rocket_data, aes(x = Rocket, y = Payload.Capacity)) +
   geom_bar(stat = "identity", fill = neutral_colors["forestgreen"]) +
-  geom_text(aes(label = Payload.Capacity), vjust = -0.3, size = 3) +
+  geom_text(aes(label = sprintf("%.1f", Payload.Capacity)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Payload Capacity by Rocket",
     y = "Payload Capacity (kg)"
   ) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 0.1)) +
   theme(
     axis.title = element_text(size = 10),
     axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
 dry_mass_plot <- ggplot(rocket_data, aes(x = Rocket, y = Dry.Mass)) +
   geom_bar(stat = "identity", fill = neutral_colors["darkred"]) +
-  geom_text(aes(label = Dry.Mass), vjust = -0.3, size = 3) +
+  geom_text(aes(label = scales::comma(Dry.Mass)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Dry Mass by Rocket",
     y = "Dry Mass (kg)"
   ) +
+  scale_y_continuous(labels = scales::comma) +
   theme(
     axis.title = element_text(size = 10),
     axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
 propellant_usage_plot <- ggplot(rocket_data, aes(x = Rocket, y = Propellant)) +
   geom_bar(stat = "identity", fill = neutral_colors["darkorange"]) +
-  geom_text(aes(label = Propellant), vjust = -0.3, size = 3) +
+  geom_text(aes(label = scales::comma(Propellant)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Propellant Usage by Rocket",
     y = "Amount of Propellant"
   ) +
+  scale_y_continuous(labels = scales::comma) +
   theme(
     axis.title = element_text(size = 10),
     axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     legend.position = "bottom",
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
@@ -112,7 +116,7 @@ data$Propellant_Type <- factor(
 
 data$Rocket <- factor(
   data$Rocket,
-  levels = c('Ariane-5', 'Ariane-62', 'Ariane-64', 'Arlas V', 'Falcon-9', 'Falcon-Heavy', 'Long March 5', 'LVM3', 'New Glenn', 'Soyuz-FG', 'Starship', 'Vulcan Centaur'))
+  levels = c('Ariane-5', 'Ariane-62', 'Ariane-64', 'Atlas V', 'Falcon-9', 'Falcon-Heavy', 'Long March 5', 'LVM3', 'New Glenn', 'Soyuz-FG', 'Starship', 'Vulcan Centaur'))
 
 data <- data %>%
   group_by(Rocket) %>%
@@ -147,7 +151,7 @@ emissions_plot <- ggplot(data, aes(x = Rocket, y = proportion, fill = Propellant
     axis.line.x  = element_line(size = 0.15),
     axis.line.y  = element_line(size = 0.15),
     plot.subtitle = element_text(size = 8, face = "bold"),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
@@ -155,7 +159,7 @@ propellant_emissions_data <- read.csv(file.path(folder, '../data/raw', 'propella
 
 propellant_emissions_plot <- ggplot(propellant_emissions_data, aes(x = Propellant, y = Emissions.Factor)) +
   geom_bar(stat = "identity", fill = neutral_colors["slateblue"]) +
-  geom_text(aes(label = Emissions.Factor), vjust = -0.3, size = 3) +
+  geom_text(aes(label = sprintf("%.2f", Emissions.Factor)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
@@ -166,7 +170,7 @@ propellant_emissions_plot <- ggplot(propellant_emissions_data, aes(x = Propellan
     axis.title = element_text(size = 10),
     axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
@@ -174,7 +178,7 @@ dry_mass_emissions_data <- read.csv(file.path(folder, '../data/raw', 'dry_mass_e
 
 dry_mass_emissions_plot <- ggplot(dry_mass_emissions_data, aes(x = Material, y = Emissions.Factor)) +
   geom_bar(stat = "identity", fill = neutral_colors["darkgreen"]) +
-  geom_text(aes(label = Emissions.Factor), vjust = -0.3, size = 3) +
+  geom_text(aes(label = sprintf("%.2f", Emissions.Factor)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
@@ -185,7 +189,7 @@ dry_mass_emissions_plot <- ggplot(dry_mass_emissions_data, aes(x = Material, y =
     axis.title = element_text(size = 10),
     axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
     axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),  # Increased font size here
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
@@ -193,7 +197,7 @@ transportation_emissions_data <- read.csv(file.path(folder, '../data/raw', 'tran
 
 transportation_emissions_plot <- ggplot(transportation_emissions_data, aes(x = Transportation, y = Emissions.Factor)) +
   geom_bar(stat = "identity", fill = neutral_colors["darkblue"]) +
-  geom_text(aes(label = Emissions.Factor), vjust = -0.3, size = 3) +
+  geom_text(aes(label = sprintf("%.2f", Emissions.Factor)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(

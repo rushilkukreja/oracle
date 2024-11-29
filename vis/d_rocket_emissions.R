@@ -57,12 +57,10 @@ data_summary1 <- data1 %>%
   group_by(Rocket) %>%
   summarise(total_emission = sum(emission_value))
 
-# Graph A
-emissions_plot1 <-
-  ggplot(data1, aes(x = Rocket, y = emission_value)) +
+emissions_plot1 <- ggplot(data1, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_manual(values = neutral_colors, name = NULL) +
-  geom_text(data = data_summary1, aes(x = Rocket, y = total_emission, label = comma(total_emission)), 
+  geom_text(data = data_summary1, aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
             vjust = -0.5, size = 3.5) +
   theme_minimal() +
   labs(
@@ -70,13 +68,12 @@ emissions_plot1 <-
     x = NULL,
     fill = NULL,
     title = "Greenhouse Gas Emissions by Launch Vehicle",
-    subtitle = "Emissions across various impact categories for all launch vehicles"
   ) +
-  ylab("Greenhouse Gas Emissions (kg CO2e)") + 
+  ylab("Greenhouse Gas Emissions (tons CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max(data_summary1$total_emission) * 1.1)
+    limits = c(0, max(data_summary1$total_emission / 1000) * 1.1)
   ) +
   theme(
     legend.position = "none",
@@ -96,7 +93,6 @@ emissions_plot1 <-
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-# Graph B
 data2 <- read.csv(file.path(folder, '../results', "adjusted_rocket_emissions.csv"))
 
 data2 <- select(
@@ -136,11 +132,10 @@ data_summary2 <- data2 %>%
   group_by(Rocket) %>%
   summarise(total_emission = sum(emission_value))
 
-emissions_plot2 <-
-  ggplot(data2, aes(x = Rocket, y = emission_value)) +
+emissions_plot2 <- ggplot(data2, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   scale_fill_manual(values = neutral_colors, name = NULL) +
-  geom_text(data = data_summary2, aes(x = Rocket, y = total_emission, label = comma(total_emission)), 
+  geom_text(data = data_summary2, aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
             vjust = -0.5, size = 3.5) +
   theme_minimal() +
   labs(
@@ -148,13 +143,12 @@ emissions_plot2 <-
     x = NULL,
     fill = NULL,
     title = "Greenhouse Gas Emissions per kg Payload by Launch Vehicle",
-    subtitle = "Emissions per kg of payload mass across various impact categories for all launch vehicles"
   ) +
-  ylab("Greenhouse Gas Emissions (kg CO2e)") + 
+  ylab("Greenhouse Gas Emissions (tons CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max(data_summary2$total_emission) * 1.1)
+    limits = c(0, max(data_summary2$total_emission / 1000) * 1.1)
   ) +
   theme(
     legend.position = "none",
@@ -174,7 +168,6 @@ emissions_plot2 <-
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-# Graph C
 data1_relative <- data1 %>%
   group_by(Rocket) %>%
   mutate(relative_emission = emission_value / sum(emission_value))
@@ -189,7 +182,6 @@ emissions_plot3 <-
     x = NULL,
     fill = NULL,
     title = "Relative Emissions by Launch Vehicle",
-    subtitle = "Proportional Distribution of Emissions by Rocket Across Key Impact Categories"
   ) +
   ylab("Relative Emissions (Percentage)") + 
   scale_y_continuous(labels = scales::percent, expand = c(0, 0)) +
@@ -211,7 +203,6 @@ emissions_plot3 <-
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-# Graph D
 reusability_data <- read.csv(file.path(folder, '../results', 'reusability.csv'))
 
 reusability_data <- reusability_data %>%
@@ -225,22 +216,25 @@ reusability_data$Launch_Type <- factor(reusability_data$Launch_Type,
                                        levels = c("Initial.Launch", "Subsequent.Launch"),
                                        labels = c("Initial Launch", "Subsequent Launch"))
 
-reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value, fill = Launch_Type)) +
+reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value / 1000, fill = Launch_Type)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = comma(emission_value)), 
+  geom_text(aes(label = comma(emission_value / 1000)), 
             position = position_dodge(0.9), vjust = -0.5, size = 3.5) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.05)), 
+    limits = c(0, max(reusability_data$emission_value / 1000) * 1.05), 
+    labels = comma
+  ) +
   scale_fill_manual(values = c("Initial Launch" = "#C0504D", "Subsequent Launch" = "#70AD47")) +
   theme_minimal() +
   labs(
     title = "Impact of Reusability on Launch Emissions",
-    subtitle = "Comparing emissions between initial and subsequent launches for reusable rockets",
-    x = "Rocket",
-    y = "Greenhouse Gas Emissions (kg CO2e)",
+    y = "Greenhouse Gas Emissions (tons CO2e)",
     fill = NULL
   ) +
   theme(
     legend.position = "bottom",
+    axis.title.x = element_blank(),
     axis.title = element_text(size = 10),
     axis.line = element_line(colour = "black"),
     panel.border = element_blank(),
@@ -254,7 +248,6 @@ reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value,
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-# Graph E
 reusability2_data <- read.csv(file.path(folder, '../results', 'reusability_rockets.csv'))
 
 reusability2_data <- reusability2_data %>%
@@ -276,19 +269,22 @@ reusability2_data$impact_category <- factor(
   labels = c("Launch Event", "Launcher Production", "Electronics Production", "Launcher Transportation", "Electricity Consumption")
 )
 
-reusability_plot2 <- ggplot(reusability2_data, aes(x = Rocket, y = emission_value, fill = impact_category)) +
+reusability_plot2 <- ggplot(reusability2_data, aes(x = Rocket, y = emission_value / 1000, fill = impact_category)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = comma(emission_value)), 
+  geom_text(aes(label = comma(emission_value / 1000)), 
             position = position_dodge(0.9), vjust = -0.5, size = 3.5) +
   scale_fill_manual(values = neutral_colors) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.05)), 
+    limits = c(0, max(reusability2_data$emission_value / 1000) * 1.05), 
+    labels = comma
+  ) +
   theme_minimal() +
   labs(
-    title = "Emissions Comparison between Reusable and Non-Reusable Rockets",
-    subtitle = "Emissions across various impact categories",
+    title = "Emissions for Reusable and Non-Reusable Rockets",
     x = NULL,
-    y = "Greenhouse Gas Emissions (kg CO2e)"
+    y = "Greenhouse Gas Emissions (tons CO2e)"
   ) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
   theme(
     legend.position = "none",
     axis.title = element_text(size = 10),
@@ -312,21 +308,28 @@ combined_plot <- ggarrange(emissions_plot1, emissions_plot2, emissions_plot3, re
                            ncol = 2, nrow = 3, 
                            labels = c("A", "B", "C", "D", "E", "F"))
 
-# Graph F
 size_emissions_data <- read.csv(file.path(folder, '../results', 'size_emissions.csv'))
 
 size_emissions_data$Dry.Mass <- as.numeric(gsub(",", "", size_emissions_data$Dry.Mass))
 size_emissions_data$Emissions <- as.numeric(gsub(",", "", size_emissions_data$Emissions))
 
-scatter_plot_f <- ggplot(size_emissions_data, aes(x = Dry.Mass, y = Emissions, label = Rocket)) +
-  geom_point(color = "blue", size = 3) +
+scatter_plot_f <- ggplot(size_emissions_data, aes(x = Dry.Mass, y = Emissions / 1000, label = Rocket)) +
+  geom_point(color = "black", size = 2) +
   geom_text(aes(label = Rocket), vjust = -1, size = 3.5) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0.05, 0.05)), 
+    limits = c(0, max(size_emissions_data$Emissions / 1000) * 1.05), 
+    labels = comma
+  ) +
+  scale_x_continuous(
+    labels = comma, 
+    expand = expansion(mult = c(0.05, 0.05)) 
+  ) +
   theme_minimal() +
   labs(
     title = "Dry Mass vs Emissions by Rocket",
-    subtitle = "Scatterplot showing the relationship between Dry Mass and Emissions for each rocket",
     x = "Dry Mass (kg)",
-    y = "Greenhouse Gas Emissions (kg CO2e)"
+    y = "Greenhouse Gas Emissions (tons CO2e)"
   ) +
   theme(
     axis.title = element_text(size = 10),
@@ -341,19 +344,70 @@ scatter_plot_f <- ggplot(size_emissions_data, aes(x = Dry.Mass, y = Emissions, l
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
-
-combined_plot <- ggarrange(emissions_plot1, emissions_plot2, emissions_plot3, reusability_plot, reusability_plot2, scatter_plot_f, 
-                           ncol = 2, nrow = 3, 
-                           labels = c("A", "B", "C", "D", "E", "F"))
+combined_plot <- ggarrange(
+  emissions_plot1 + 
+    theme(
+      axis.title = element_text(size = 10),
+      axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 8),
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+    ),
+  emissions_plot2 + 
+    theme(
+      axis.title = element_text(size = 10),
+      axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 8),
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+    ),
+  emissions_plot3 + 
+    theme(
+      axis.title = element_text(size = 10),
+      axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 8),
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+    ),
+  reusability_plot + 
+    theme(
+      axis.title = element_text(size = 10),
+      axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 8),
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+    ),
+  reusability_plot2 + 
+    theme(
+      axis.title = element_text(size = 10),
+      axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 8),
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+    ),
+  scatter_plot_f + 
+    theme(
+      axis.title = element_text(size = 10),
+      axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 8),
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+    ),
+  ncol = 2,
+  nrow = 3,
+  labels = c("A", "B", "C", "D", "E", "F")
+)
 
 legend <- get_legend(
   emissions_plot2 + 
-    theme(legend.position = "bottom", legend.text = element_text(size = 14))
+    theme(legend.position = "bottom", legend.text = element_text(size = 10))
 )
-
-combined_plot <- ggarrange(emissions_plot1, emissions_plot2, emissions_plot3, reusability_plot, reusability_plot2, scatter_plot_f, 
-                           ncol = 2, nrow = 3, 
-                           labels = c("A", "B", "C", "D", "E", "F"))
 
 final_plot <- ggarrange(combined_plot, legend, ncol = 1, heights = c(10, 1))
 
@@ -363,8 +417,8 @@ png(
   path_combined,
   units = "in",
   width = 16,
-  height = 18,
-  res = 480
+  height = 16,
+  res = 300
 )
 print(final_plot)
 dev.off()
