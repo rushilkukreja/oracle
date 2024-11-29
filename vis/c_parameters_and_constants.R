@@ -225,7 +225,7 @@ png(
   path_combined,
   units = "in",
   width = 16,
-  height = 16,
+  height = 18,
   res = 300
 )
 print(f_emissions)

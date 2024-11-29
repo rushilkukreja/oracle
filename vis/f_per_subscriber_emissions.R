@@ -323,7 +323,7 @@ png(
   output_path,
   units = "in",
   width = 16,
-  height = 10.67,
+  height = 12,
   res = 300
 )
 print(final_plot)
