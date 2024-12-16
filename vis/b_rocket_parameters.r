@@ -10,7 +10,9 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 rct <- read.csv(file.path(folder, '..', 'data', 'raw', "rocket_parameters.csv"),
                 row.names = 1)
-new_names <- c('Ariane-5', 'Ariane-62', 'Ariane-64', 'Atlas V', 'Falcon-9', 'Falcon-Heavy', 'Long March-5', 'LVM3', 'New Glenn', 'Soyuz-FG', 'Starship', 'Vulcan Centaur')
+new_names <- c('Ariane-5', 'Ariane-62', 'Ariane-64', 'Atlas V', 'Falcon-9', 
+               'Falcon-Heavy', 'Long March-5', 'LVM3', 'New Glenn', 'Soyuz-FG', 
+               'Starship', 'Vulcan Centaur')
 colnames(rct) <- new_names
 
 rct_transposed <- t(rct)
@@ -18,7 +20,7 @@ rct_transposed <- t(rct)
 rct_first_half <- rct_transposed[, 1:4]
 rct_second_half <- rct_transposed[, 5:ncol(rct_transposed)]
 
-folder_tables <- file.path(folder, 'figures', 'tables')
+folder_tables <- file.path(folder, 'figures', 'ab_tables')
 dir.create(folder_tables, showWarnings = FALSE, recursive = TRUE)
 
 filename_first = 'b_rocket_parameters_table_1.png'
@@ -32,7 +34,9 @@ png(
 )
 table_grob_first <- tableGrob(rct_first_half)
 for (i in seq_len(ncol(rct_first_half))) {
-  max_width <- max(unit.c(table_grob_first$widths[i], stringWidth(colnames(rct_first_half)[i])))
+  max_width <- max(
+    unit.c(table_grob_first$widths[i], 
+           stringWidth(colnames(rct_first_half)[i])))
   table_grob_first$widths[i] <- max_width
 }
 grid.newpage()
@@ -50,7 +54,9 @@ png(
 )
 table_grob_second <- tableGrob(rct_second_half)
 for (i in seq_len(ncol(rct_second_half))) {
-  max_width <- max(unit.c(table_grob_second$widths[i], stringWidth(colnames(rct_second_half)[i])))
+  max_width <- max(
+    unit.c(table_grob_second$widths[i], 
+           stringWidth(colnames(rct_second_half)[i])))
   table_grob_second$widths[i] <- max_width
 }
 grid.newpage()

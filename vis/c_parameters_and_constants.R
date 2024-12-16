@@ -12,29 +12,25 @@ visualizations = file.path(folder, 'figures')
 filename = "satellites.csv"
 satellites_data <- read.csv(file.path(folder, '../data/raw', filename))
 
-neutral_colors <- c(
-  "steelblue" = "#4F81BD",
-  "forestgreen" = "#70AD47",
-  "darkred" = "#C0504D",
-  "slateblue" = "#6A5ACD",
-  "darkgreen" = "#556B2F",
-  "darkblue" = "#1F497D",
-  "darkorange" = "#FF8C00"
-)
-
-satellites_plot <- ggplot(satellites_data, aes(x = Constellation, y = Satellites / 1000)) +
-  geom_bar(stat = "identity", fill = neutral_colors["steelblue"]) +
-  geom_text(aes(label = sprintf("%.1f", Satellites / 1000)), vjust = -0.3, size = 3) +
-  theme_minimal() +
+plot_a <- 
+  ggplot(satellites_data, 
+         aes(x = factor(satellites_data$Constellation, 
+                        levels = rev(unique(satellites_data$Constellation))), 
+             y = Satellites / 1000, fill=Lead.Region)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f", Satellites / 1000)), vjust = .3, hjust=-0.5, size = 3) +
+  theme_minimal() + coord_flip() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
-    title = "Number of Satellites by Constellation",
-    y = "Number of Satellites (in thousands)"
+    title = "Number of Satellites by LEO Constellation",
+    x = "",
+    y = "Number of Satellites (in thousands)", fill='Region'
   ) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
+  scale_fill_viridis_d() +
   theme(
     axis.title = element_text(size = 10),
-    axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+    axis.text.x = element_text(size = 8, angle = 0, hjust = 1),
     axis.text.y = element_text(size = 8),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)

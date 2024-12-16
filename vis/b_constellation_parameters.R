@@ -17,13 +17,18 @@ set_equal_widths <- function(table_grob) {
   return(table_grob)
 }
 
-rct1 = read.csv(file.path(folder, '..', 'data', 'raw', "constellation_parameters.csv"), row.names = 1)
-new_names1 <- c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 'Semaphore-C', 'SferaCon', 'Starlink (Gen 2)', 'Swarm', 'Xingshidai', 'Xingwang', 'Yinhe')
+path_in = file.path(folder, '..', 'data', 'raw', "constellation_parameters.csv")
+rct1 = read.csv(path_in, row.names = 1)
+new_names1 <- c('Astra', 'BlueWalker', 'Cinnamon-937', 'Flock', 'Globalstar', 
+                'Guowang', 'Hanwha', 'Honghu-3', 'HVNET', 'KLEO', 'Kuiper', 
+                'Lacuna', 'Lightspeed', 'Lynk', 'Omni', 'OneWeb', 'Rassvet', 
+                'Semaphore-C', 'SferaCon', 'Starlink (Gen 2)', 'Swarm', 
+                'Xingshidai', 'Xingwang', 'Yinhe')
 colnames(rct1) <- new_names1
 rct1_transposed <- t(rct1)
 
 filename1 = 'b_constellation_parameters_table.png'
-folder_tables1 = file.path(folder, 'figures', 'tables')
+folder_tables1 = file.path(folder, 'figures', 'ab_tables')
 path1 = file.path(folder_tables1, filename1)
 dir.create(file.path(folder, 'figures'), showWarnings = FALSE)
 png(path1, units = "in", width = 10, height = 7.5, res = 480)
