@@ -1,8 +1,8 @@
-﻿Properties,Long March 5,LVM3,New Glenn,Soyuz-FG ,Starship,Vulcan Centaur, 
-Operator,CASTC,ISRO,Blue Origin,PRSC,SpaceX,ULA,
-Payload to LEO (tonnes),25,7.9,44.9,7.1,125,19,
-Fuel Type,"Hydrogen, Kerosene","UDMH, Hydrazine",LNG,Kerosene (RP-1),Liquid methane,Liquid hydrogen,
-Height (m),53.7,43.5,98,51,121,61.6,
-Price Per Launch,$70 million,$54 million,$20 million,$80 million,$10 million,$110 million,
-Propellant Mass (tonnes),571.2,27,45,157,"1,200.00",54.4,
-Fuel ,Mixed,Mixed,Hydrocarbon,Hydrocarbon,Hydrocarbon,Hydrogen,
+﻿Properties,Long March 5,LVM3,New Glenn,Soyuz-FG ,Starship,Vulcan Centaur
+Operator,CASTC,ISRO,Blue Origin,PRSC,SpaceX,ULA
+Payload to LEO (tonnes),25,7.9,44.9,7.1,125,19
+Fuel Type,"Hydrogen, Kerosene","UDMH, Hydrazine",LNG,Kerosene (RP-1),Liquid methane,Liquid hydrogen
+Height (m),53.7,43.5,98,51,121,61.6
+Price Per Launch,$70 million,$54 million,$20 million,$80 million,$10 million,$110 million
+Propellant Mass (tonnes),571.2,27,45,157,"1,200.00",54.4
+Fuel ,Mixed,Mixed,Hydrocarbon,Hydrocarbon,Hydrocarbon,Hydrogen
