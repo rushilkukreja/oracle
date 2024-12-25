@@ -5,6 +5,7 @@ library(tidyr)
 library(ggtext)
 library(scales)
 library(rstudioapi)
+library(viridis)
 
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 visualizations = file.path(folder, 'figures')
@@ -12,11 +13,16 @@ visualizations = file.path(folder, 'figures')
 filename = "satellites.csv"
 satellites_data <- read.csv(file.path(folder, '../data/raw', filename))
 
-plot_a <- 
-  ggplot(satellites_data, 
-         aes(x = factor(satellites_data$Constellation, 
-                        levels = rev(unique(satellites_data$Constellation))), 
-             y = Satellites / 1000, fill=Lead.Region)) +
+shared_color_scale <- scale_fill_viridis_d(
+  option = "plasma",
+  direction = -1,
+  name = NULL
+)
+
+plot_a <- ggplot(satellites_data, 
+                 aes(x = factor(satellites_data$Constellation, 
+                                levels = rev(unique(satellites_data$Constellation))), 
+                     y = Satellites / 1000, fill=Lead.Region)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = sprintf("%.1f", Satellites / 1000)), vjust = .3, hjust=-0.5, size = 3) +
   theme_minimal() + coord_flip() +
@@ -24,12 +30,14 @@ plot_a <-
   labs(
     title = "Number of Satellites by LEO Constellation",
     x = "",
-    y = "Number of Satellites (in thousands)", fill='Region'
+    y = "Number of Satellites (in thousands)", 
+    fill = 'Region'
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  scale_fill_viridis_d() +
+  shared_color_scale +
   theme(
     axis.title = element_text(size = 10),
+    axis.title.y = element_text(margin = margin(r = 5)),
     axis.text.x = element_text(size = 8, angle = 0, hjust = 1),
     axis.text.y = element_text(size = 8),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
@@ -38,55 +46,70 @@ plot_a <-
 
 rocket_data <- read.csv(file.path(folder, '../data/raw', 'rocket_data.csv'))
 
-payload_capacity_plot <- ggplot(rocket_data, aes(x = Rocket, y = Payload.Capacity)) +
-  geom_bar(stat = "identity", fill = neutral_colors["forestgreen"]) +
-  geom_text(aes(label = sprintf("%.1f", Payload.Capacity)), vjust = -0.3, size = 3) +
-  theme_minimal() +
+payload_capacity_plot <- ggplot(rocket_data, 
+                                aes(x = factor(Rocket, levels = rev(unique(Rocket))), y = Payload.Capacity, fill=Lead.Region)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f", Payload.Capacity)), vjust = .3, hjust=-0.5, size = 3) +
+  theme_minimal() + coord_flip() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Payload Capacity by Rocket",
-    y = "Payload Capacity (kg)"
+    x = NULL,
+    y = "Payload Capacity (kg)", 
+    fill = 'Region'
   ) +
-  scale_y_continuous(labels = scales::label_number(accuracy = 0.1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 150)) +
+  shared_color_scale +
   theme(
     axis.title = element_text(size = 10),
-    axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+    axis.title.y = element_text(margin = margin(r = 5)),
+    axis.text.x = element_text(size = 8, angle = 0, hjust = 1),
     axis.text.y = element_text(size = 8),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-dry_mass_plot <- ggplot(rocket_data, aes(x = Rocket, y = Dry.Mass)) +
-  geom_bar(stat = "identity", fill = neutral_colors["darkred"]) +
-  geom_text(aes(label = scales::comma(Dry.Mass)), vjust = -0.3, size = 3) +
-  theme_minimal() +
+dry_mass_plot <- ggplot(rocket_data, 
+                        aes(x = factor(Rocket, levels = rev(unique(Rocket))), y = Dry.Mass, fill=Lead.Region)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::comma(Dry.Mass)), hjust = -0.3, size = 3) +
+  theme_minimal() + coord_flip() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Dry Mass by Rocket",
-    y = "Dry Mass (kg)"
+    x = NULL,
+    y = "Dry Mass (kg)", 
+    fill = 'Region'
   ) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 450000), labels = scales::comma) +
+  shared_color_scale +
   theme(
     axis.title = element_text(size = 10),
-    axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(size = 8),
     axis.text.y = element_text(size = 8),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-propellant_usage_plot <- ggplot(rocket_data, aes(x = Rocket, y = Propellant)) +
-  geom_bar(stat = "identity", fill = neutral_colors["darkorange"]) +
-  geom_text(aes(label = scales::comma(Propellant)), vjust = -0.3, size = 3) +
-  theme_minimal() +
+propellant_usage_plot <- ggplot(rocket_data, 
+                                aes(x = factor(Rocket, levels = rev(unique(Rocket))), y = Propellant, fill=Lead.Region)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::comma(Propellant)), hjust = -0.3, size = 3) +
+  theme_minimal() + coord_flip() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
     title = "Propellant Usage by Rocket",
-    y = "Amount of Propellant"
+    x = NULL,
+    y = "Amount of Propellant", 
+    fill = 'Region'
   ) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 5500000), labels = scales::comma) +
+  shared_color_scale +
   theme(
     axis.title = element_text(size = 10),
-    axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(size = 8),
     axis.text.y = element_text(size = 8),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     legend.position = "bottom",
@@ -107,8 +130,7 @@ data <- data %>%
 
 data$Propellant_Type <- factor(
   data$Propellant_Type,
-  levels = c("Solid", "Cryogenic", "Kerosene", "Hypergolic"),
-  labels = c("Solid", "Cryogenic", "Kerosene", "Hypergolic"))
+  levels = c("Solid", "Cryogenic", "Kerosene", "Hypergolic"))
 
 data$Rocket <- factor(
   data$Rocket,
@@ -121,8 +143,7 @@ data <- data %>%
 
 emissions_plot <- ggplot(data, aes(x = Rocket, y = proportion, fill = Propellant_Type)) +
   geom_bar(stat = "identity") +
-  scale_fill_manual(values = c("Solid" = "#4F81BD", "Cryogenic" = "#70AD47", 
-                               "Kerosene" = "#C0504D", "Hypergolic" = "#6A5ACD"), name = NULL) + 
+  scale_fill_viridis_d(option = "plasma", name = NULL) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(
@@ -154,7 +175,7 @@ emissions_plot <- ggplot(data, aes(x = Rocket, y = proportion, fill = Propellant
 propellant_emissions_data <- read.csv(file.path(folder, '../data/raw', 'propellant_emissions_factors.csv'))
 
 propellant_emissions_plot <- ggplot(propellant_emissions_data, aes(x = Propellant, y = Emissions.Factor)) +
-  geom_bar(stat = "identity", fill = neutral_colors["slateblue"]) +
+  geom_bar(stat = "identity", fill = viridis(1)) +
   geom_text(aes(label = sprintf("%.2f", Emissions.Factor)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
@@ -173,7 +194,7 @@ propellant_emissions_plot <- ggplot(propellant_emissions_data, aes(x = Propellan
 dry_mass_emissions_data <- read.csv(file.path(folder, '../data/raw', 'dry_mass_emissions_factors.csv'))
 
 dry_mass_emissions_plot <- ggplot(dry_mass_emissions_data, aes(x = Material, y = Emissions.Factor)) +
-  geom_bar(stat = "identity", fill = neutral_colors["darkgreen"]) +
+  geom_bar(stat = "identity", fill = viridis(1, option = "plasma")) +
   geom_text(aes(label = sprintf("%.2f", Emissions.Factor)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
@@ -192,7 +213,7 @@ dry_mass_emissions_plot <- ggplot(dry_mass_emissions_data, aes(x = Material, y =
 transportation_emissions_data <- read.csv(file.path(folder, '../data/raw', 'transportation_emissions_factors.csv'))
 
 transportation_emissions_plot <- ggplot(transportation_emissions_data, aes(x = Transportation, y = Emissions.Factor)) +
-  geom_bar(stat = "identity", fill = neutral_colors["darkblue"]) +
+  geom_bar(stat = "identity", fill = viridis(1, option = "inferno")) +
   geom_text(aes(label = sprintf("%.2f", Emissions.Factor)), vjust = -0.3, size = 3) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
@@ -208,11 +229,23 @@ transportation_emissions_plot <- ggplot(transportation_emissions_data, aes(x = T
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
 
-f_emissions <- ggarrange(dry_mass_plot, payload_capacity_plot, satellites_plot,
-                         propellant_emissions_plot, dry_mass_emissions_plot, transportation_emissions_plot, propellant_usage_plot, emissions_plot,
-                         ncol = 2, 
-                         nrow = 4,
-                         labels = c("A", "B", "C", "D", "E", "F", "G", "H")
+region_legend <- get_legend(
+  plot_a + theme(legend.position = "bottom")
+)
+
+f_emissions <- ggarrange(
+  dry_mass_plot, payload_capacity_plot, plot_a, propellant_usage_plot,
+  ncol = 2, nrow = 2,
+  labels = c("A", "B", "C", "D")
+)
+
+final_plot <- ggarrange(
+  dry_mass_plot, payload_capacity_plot, plot_a, propellant_usage_plot,
+  ncol = 2, 
+  nrow = 2,
+  labels = c("A", "B", "C", "D"),
+  common.legend = TRUE,
+  legend = "bottom"
 )
 
 path_combined <- file.path(visualizations, 'c_parameters_and_constants.png')
@@ -221,8 +254,8 @@ png(
   path_combined,
   units = "in",
   width = 16,
-  height = 18,
+  height = 12,
   res = 300
 )
-print(f_emissions)
+print(final_plot)
 dev.off()

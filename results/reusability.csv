@@ -1,5 +1,9 @@
-﻿Rocket,Initial Launch,Subsequent Launch
-Falcon-9,"1,458,580","818,548"
-Falcon-Heavy,"3,904,472","2,335,851"
-New Glenn,"3,530,815","1,361,215"
-Starship,"8,383,980","5,435,866"
+﻿Rocket,Launch Event,Launcher Production,Electronics Production,Launcher Transportation,Electricity Consumption
+Falcon-9 Initial,577112.00,417573.00,36654.00,241436.00,185806.00
+Falcon-9 Subsequent,577112.00,70987.41,6231.18,241436.00,31587.02
+Falcon-Heavy Initial,1650849.00,1023407.00,89833.00,685002.00,455382.00
+Falcon-Heavy Subsequent,1650849.00,173979.19,15271.61,685002.00,77414.94
+New Glenn Initial,1358967.00,1415500.00,124250.00,2249.00,629850.00
+New Glenn Subsequent,1358967.00,226480.00,19880.00,2249.00,100776.00
+Starship Initial,5435866.00,2337000.00,497000.00,0.00,114114.00
+Starship Subsequent,5435866.00,46740.00,9940.00,0.00,2282.28
