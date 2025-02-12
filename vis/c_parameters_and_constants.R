@@ -30,16 +30,15 @@ plot_a <- ggplot(satellites_data,
   labs(
     title = "Number of Satellites by LEO Constellation",
     x = "",
-    y = "Number of Satellites (in thousands)", 
-    fill = 'Region'
+    y = "Number of Satellites (in thousands)"
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
   shared_color_scale +
   theme(
-    axis.title = element_text(size = 10),
+    axis.title = element_text(size = 12),
     axis.title.y = element_text(margin = margin(r = 5)),
-    axis.text.x = element_text(size = 8, angle = 0, hjust = 1),
-    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 10, angle = 0, hjust = 1),
+    axis.text.y = element_text(size = 10),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
@@ -61,10 +60,10 @@ payload_capacity_plot <- ggplot(rocket_data,
   scale_y_continuous(expand = c(0, 0), limits = c(0, 150)) +
   shared_color_scale +
   theme(
-    axis.title = element_text(size = 10),
+    axis.title = element_text(size = 12),
     axis.title.y = element_text(margin = margin(r = 5)),
-    axis.text.x = element_text(size = 8, angle = 0, hjust = 1),
-    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 10, angle = 0, hjust = 1),
+    axis.text.y = element_text(size = 10),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
@@ -84,10 +83,10 @@ dry_mass_plot <- ggplot(rocket_data,
   scale_y_continuous(expand = c(0, 0), limits = c(0, 450000), labels = scales::comma) +
   shared_color_scale +
   theme(
-    axis.title = element_text(size = 10),
+    axis.title = element_text(size = 12),
     axis.title.y = element_blank(),
-    axis.text.x = element_text(size = 8),
-    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
   )
@@ -107,10 +106,10 @@ propellant_usage_plot <- ggplot(rocket_data,
   scale_y_continuous(expand = c(0, 0), limits = c(0, 5500000), labels = scales::comma) +
   shared_color_scale +
   theme(
-    axis.title = element_text(size = 10),
+    axis.title = element_text(size = 12),
     axis.title.y = element_blank(),
-    axis.text.x = element_text(size = 8),
-    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
     plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
     legend.position = "bottom",
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
@@ -156,8 +155,8 @@ emissions_plot <- ggplot(data, aes(x = Rocket, y = proportion, fill = Propellant
   theme(
     legend.position = "bottom",
     legend.spacing.x = unit(0.5, 'cm'),
-    legend.text = element_text(size = 10),
-    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 13),
+    legend.title = element_text(size = 13),
     axis.title = element_text(size = 10),
     axis.line = element_line(colour = "black"),
     strip.text.x = element_blank(),
@@ -239,8 +238,19 @@ f_emissions <- ggarrange(
   labels = c("A", "B", "C", "D")
 )
 
+shared_color_scale <- scale_fill_viridis_d(
+  option = "plasma",
+  direction = -1,
+  name = NULL,
+  guide = guide_legend(nrow = 1)
+)
+
+dry_mass_plot <- dry_mass_plot + shared_color_scale
+payload_capacity_plot <- payload_capacity_plot + shared_color_scale
+propellant_usage_plot <- propellant_usage_plot + shared_color_scale
+
 final_plot <- ggarrange(
-  dry_mass_plot, payload_capacity_plot, plot_a, propellant_usage_plot,
+  dry_mass_plot, payload_capacity_plot, propellant_usage_plot, plot_a,
   ncol = 2, 
   nrow = 2,
   labels = c("A", "B", "C", "D"),
@@ -253,7 +263,7 @@ dir.create(visualizations, showWarnings = FALSE)
 png(
   path_combined,
   units = "in",
-  width = 16,
+  width = 12,
   height = 12,
   res = 300
 )
