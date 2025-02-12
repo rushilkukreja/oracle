@@ -47,13 +47,13 @@ max_emission2 <- max(total_emissions2$total_emission_value, na.rm = TRUE)
 
 total_emissions2 <- total_emissions2 %>%
   mutate(
-    lower = total_emission_value * 0.9,
-    upper = total_emission_value * 1.1
+    lower = total_emission_value * 0.8,
+    upper = total_emission_value * 1.2
   )
 
 emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
-  coord_flip() +  # Flip coordinates
+  coord_flip() +
   scale_fill_viridis_d(option = "plasma") + 
   theme_minimal() +
   labs(
@@ -66,7 +66,7 @@ emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission2 * 1.2)
+    limits = c(0, max_emission2 * 1.3)
   ) + 
   theme(
     legend.position = "none",
@@ -77,8 +77,8 @@ emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
     axis.title.y = element_markdown(margin = margin(r = 10)),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.text.y = element_text(size = 11),  # Increased y-axis text (former x-axis labels)
-    axis.text.x = element_text(size = 10),  # Increased x-axis text
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 10),
     axis.line.x = element_line(size = 0.15),
     axis.line.y = element_line(size = 0.15),
     plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
@@ -88,7 +88,7 @@ emissions_plot <- ggplot(data2, aes(x = Constellation, y = emission_value)) +
   geom_text(
     data = total_emissions2, 
     aes(x = Constellation, y = upper + (upper - lower) * 0.05, label = comma(round(total_emission_value))),  
-    hjust = -0.1,  # Adjusted for flipped coordinates
+    hjust = -0.1,
     size = 3.5
   ) +
   geom_errorbar(
@@ -123,8 +123,8 @@ total_emissions4 <- data4 %>%
 
 total_emissions4 <- total_emissions4 %>%
   mutate(
-    lower = total_emission_value * 0.9,  # -10%
-    upper = total_emission_value * 1.1   # +10%
+    lower = total_emission_value * 0.8,
+    upper = total_emission_value * 1.2
   )
 
 max_emission4 <- max(total_emissions4$total_emission_value, na.rm = TRUE)
@@ -143,7 +143,7 @@ country_bar_chart <- ggplot(data4, aes(x = Country, y = emission_value)) +
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission4 * 1.2)
+    limits = c(0, max_emission4 * 1.3)
   ) +
   theme(
     legend.position = "none",
@@ -263,8 +263,8 @@ shared_legend <- get_legend(
     theme(
       legend.position = "bottom",
       legend.box = "horizontal",
-      legend.text = element_text(size = 10),  # Increased legend text size
-      legend.title = element_text(size = 11),  # Increased legend title size
+      legend.text = element_text(size = 10),
+      legend.title = element_text(size = 11),
       legend.spacing.x = unit(0.2, 'cm'),
       legend.margin = margin(t = 5, r = 0, b = 0, l = 0)
     )
@@ -293,4 +293,4 @@ png(
   res = 300
 )
 print(final_plot)
-dev.off(
+dev.off()

@@ -40,4 +40,17 @@ def monte_carlo_emissions_per_subscriber(subscribers, total_emissions, num_simul
     results = []
     for _ in range(num_simulations):
         low = subscribers * 0.9
-        hi
+        high = subscribers * 1.1
+        sampled_subscribers = np.random.normal(low, high)
+        
+        emissions_per_subscriber = total_emissions / sampled_subscribers * 10000
+        
+        results.append(emissions_per_subscriber)
+    
+    return np.std(results)
+
+df_combined["Std_Dev_Emissions_Per_Subscriber"] = df_combined.apply(
+    lambda row: monte_carlo_emissions_per_subscriber(row["Subscribers"], row["Total_Emissions"], num_simulations=1000), axis=1
+)
+
+print(df_combined)
