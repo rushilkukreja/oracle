@@ -12,6 +12,25 @@ visualizations = file.path(folder, 'figures')
 filename1 = "rocket_emissions.csv"
 data1 <- read.csv(file.path(folder, '../results', filename1))
 
+base_theme <- theme(
+  legend.position = "none",
+  legend.text = element_text(size = 14),
+  axis.title = element_text(size = 15),
+  axis.line = element_line(colour = "black"),
+  strip.text.x = element_blank(),
+  panel.border = element_blank(),
+  axis.title.y = element_markdown(margin = margin(r = 10)),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.text.y = element_text(size = 13),
+  axis.text.x = element_text(size = 13),
+  axis.line.x = element_line(size = 0.15),
+  axis.line.y = element_line(size = 0.15),
+  plot.subtitle = element_text(size = 14, hjust = 0.5),
+  plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+  plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
+)
+
 data1 = select(
   data1, 
   Rocket, 
@@ -51,39 +70,27 @@ data_summary1 <- data1 %>%
 
 emissions_plot1 <- ggplot(data1, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
+  coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
-  geom_text(data = data_summary1, aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
-            vjust = -0.5, size = 3.5) +
+  geom_text(
+    data = data_summary1, 
+    aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
-    colour = NULL,
-    x = NULL,
-    fill = NULL,
     title = "Greenhouse Gas Emissions by Launch Vehicle",
+    y = "Greenhouse Gas Emissions (tons CO2e)",
+    x = NULL,
+    fill = NULL
   ) +
-  ylab("Greenhouse Gas Emissions (tons CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
     limits = c(0, max(data_summary1$total_emission / 1000) * 1.1)
   ) +
-  theme(
-    legend.position = "none",
-    axis.title = element_text(size = 10),
-    axis.line = element_line(colour = "black"),
-    strip.text.x = element_blank(),
-    panel.border = element_blank(),
-    axis.title.y = element_markdown(margin = margin(r = 10)),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.line.x  = element_line(size = 0.15),
-    axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 14, hjust = 0.5),
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
+  base_theme
 
 data2 <- read.csv(file.path(folder, '../results', "adjusted_rocket_emissions.csv"))
 
@@ -126,39 +133,27 @@ data_summary2 <- data2 %>%
 
 emissions_plot2 <- ggplot(data2, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
+  coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
-  geom_text(data = data_summary2, aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
-            vjust = -0.5, size = 3.5) +
+  geom_text(
+    data = data_summary2, 
+    aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
-    colour = NULL,
+    title = "Greenhouse Gas Emissions per kg Payload by Vehicle",
+    y = "Greenhouse Gas Emissions (tons CO2e)",
     x = NULL,
-    fill = NULL,
-    title = "Greenhouse Gas Emissions per kg Payload by Launch Vehicle",
+    fill = NULL
   ) +
-  ylab("Greenhouse Gas Emissions (tons CO2e)") + 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
     limits = c(0, max(data_summary2$total_emission / 1000) * 1.1)
   ) +
-  theme(
-    legend.position = "none",
-    axis.title = element_text(size = 10),
-    axis.line = element_line(colour = "black"),
-    strip.text.x = element_blank(),
-    panel.border = element_blank(),
-    axis.title.y = element_markdown(margin = margin(r = 10)),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.line.x  = element_line(size = 0.15),
-    axis.line.y  = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 14, hjust = 0.5),
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
+  base_theme
 
 reusability_data <- read.csv(file.path(folder, '../results', 'reusability.csv'))
 
@@ -191,36 +186,26 @@ data_summary_reuse <- reusability_data %>%
 
 reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
+  coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
-  geom_text(data = data_summary_reuse, aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
-            vjust = -0.5, size = 3.5) +
+  geom_text(
+    data = data_summary_reuse, 
+    aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
     title = "Impact of Reusability on Launch Emissions",
-    y = "Greenhouse Gas Emissions (tons CO2e)"
+    y = "Greenhouse Gas Emissions (tons CO2e)",
+    x = NULL
   ) +
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
     limits = c(0, max(data_summary_reuse$total_emission / 1000) * 1.1)
   ) +
-  theme(
-    legend.position = "none",
-    axis.title = element_text(size = 10),
-    axis.line = element_line(colour = "black"),
-    strip.text.x = element_blank(),
-    panel.border = element_blank(),
-    axis.title.y = element_markdown(margin = margin(r = 10)),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.line.x = element_line(size = 0.15),
-    axis.line.y = element_line(size = 0.15),
-    plot.subtitle = element_text(size = 14, hjust = 0.5),
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
+  base_theme
 
 reusability2_data <- read.csv(file.path(folder, '../results', 'reusability_rockets.csv'))
 
@@ -245,52 +230,26 @@ reusability2_data$impact_category <- factor(
 
 reusability_plot2 <- ggplot(reusability2_data, aes(x = Rocket, y = emission_value / 1000, fill = impact_category)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = comma(emission_value / 1000)), 
-            position = position_dodge(0.9), vjust = -0.5, size = 3.5) +
+  coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
-  scale_y_continuous(
-    expand = expansion(mult = c(0, 0.05)), 
-    limits = c(0, max(reusability2_data$emission_value / 1000) * 1.05), 
-    labels = comma
+  geom_text(
+    aes(label = comma(emission_value / 1000)), 
+    position = position_dodge(0.9), 
+    hjust = -0.1,
+    size = 5
   ) +
   theme_minimal() +
   labs(
-    title = "Emissions for Reusable and Non-Reusable Rockets",
-    x = NULL,
-    y = "Greenhouse Gas Emissions (tons CO2e)"
+    title = "Average Emissions by Rocket Type",
+    y = "Greenhouse Gas Emissions (tons CO2e)",
+    x = NULL
   ) +
-  theme(
-    legend.position = "none",
-    axis.title = element_text(size = 10),
-    axis.line = element_line(colour = "black"),
-    panel.border = element_blank(),
-    axis.title.y = element_markdown(margin = margin(r = 10)),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    plot.subtitle = element_text(size = 14, hjust = 0.5),
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-    plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  )
-
-base_theme <- theme(
-  legend.position = "none",
-  axis.title = element_text(size = 10),
-  axis.line = element_line(colour = "black"),
-  strip.text.x = element_blank(),
-  panel.border = element_blank(),
-  axis.title.y = element_markdown(margin = margin(r = 10)),
-  panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(),
-  axis.text.x = element_text(size = 10, angle = 45, hjust = 1, face = "italic"),
-  axis.text.y = element_text(size = 10),
-  axis.line.x = element_line(size = 0.15),
-  axis.line.y = element_line(size = 0.15),
-  plot.subtitle = element_text(size = 14, hjust = 0.5),
-  plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-  plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-)
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.05)), 
+    limits = c(0, max(reusability2_data$emission_value / 1000) * 1.15),
+    labels = comma
+  ) +
+  base_theme
 
 emissions_plot1 <- emissions_plot1 + base_theme
 emissions_plot2 <- emissions_plot2 + base_theme
@@ -313,7 +272,7 @@ path_combined <- file.path(visualizations, 'd_rocket_emissions.png')
 png(path_combined,
     units = "in", 
     width = 16,
-    height = 12,
+    height = 16,
     res = 300)
 print(combined_plot)
 dev.off()

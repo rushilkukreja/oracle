@@ -99,7 +99,7 @@ headers_second <- c(
   "Production\nlocation",
   "Launch\nlocation",
   "Transportation\nvehicle",
-  "Payload\nmass (kg)"
+  "Payload\nmass (tonnes)"
 )
 
 colnames(rct_second_half_modified) <- headers_second
