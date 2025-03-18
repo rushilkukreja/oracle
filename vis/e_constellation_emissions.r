@@ -35,7 +35,12 @@ total_emissions1 <- data %>%
     Launch.Event, Launcher.Production, Electronics.Production, 
     Launcher.Transportation, Electricity.Consumption, Propulsion.System, 
     na.rm = TRUE
-  ))
+  )) %>%
+  # Add error margins (20% like in original code)
+  mutate(
+    lower = total_emission_value * 0.8,
+    upper = total_emission_value * 1.2
+  )
 
 max_emission1 <- max(total_emissions1$total_emission_value, na.rm = TRUE)
 
@@ -64,6 +69,21 @@ c_constellation_emissions <-
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma") +
+  # Add error bars
+  geom_errorbar(
+    data = total_emissions1,
+    aes(x = Constellation, ymin = lower, ymax = upper, y = total_emission_value),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
+  # Place text to the right of the error bars
+  geom_text(
+    data = total_emissions1, 
+    aes(x = Constellation, y = upper + (upper - lower) * 0.05, label = comma(round(total_emission_value))),
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
     title = "Greenhouse Gas Emissions by Satellite Constellation",
@@ -75,7 +95,7 @@ c_constellation_emissions <-
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission1 * 1.1)
+    limits = c(0, max_emission1 * 1.4)
   ) +
   theme(
     legend.position = "bottom",
@@ -93,12 +113,6 @@ c_constellation_emissions <-
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
     plot.subtitle = element_text(size = 12, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  ) +
-  geom_text(
-    data = total_emissions1, 
-    aes(x = Constellation, y = total_emission_value, label = comma(round(total_emission_value))),
-    hjust = -0.1,
-    size = 5
   )
 
 filename_per_launch = "per_launch_emissions.csv"
@@ -128,7 +142,12 @@ total_emissions_per_launch <- data_per_launch %>%
     Launch.Event, Launcher.Production, Electronics.Production, 
     Launcher.Transportation, Electricity.Consumption, Propulsion.System, 
     na.rm = TRUE
-  ))
+  )) %>%
+  # Add error margins (20% like in original code)
+  mutate(
+    lower = total_emission_value * 0.8,
+    upper = total_emission_value * 1.2
+  )
 
 max_emission_per_launch <- max(total_emissions_per_launch$total_emission_value, na.rm = TRUE)
 
@@ -153,6 +172,21 @@ g_constellation_emissions <-
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma") +
+  # Add error bars
+  geom_errorbar(
+    data = total_emissions_per_launch,
+    aes(x = Constellation, ymin = lower, ymax = upper, y = total_emission_value),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
+  # Place text to the right of the error bars
+  geom_text(
+    data = total_emissions_per_launch, 
+    aes(x = Constellation, y = upper + (upper - lower) * 0.05, label = comma(round(total_emission_value))),
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
     title = "Greenhouse Gas Emissions per Launch by Constellation",
@@ -164,7 +198,7 @@ g_constellation_emissions <-
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission_per_launch * 1.1)
+    limits = c(0, max_emission_per_launch * 1.4)
   ) +
   theme(
     legend.position = "bottom",
@@ -182,12 +216,6 @@ g_constellation_emissions <-
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
     plot.subtitle = element_text(size = 12, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  ) +
-  geom_text(
-    data = total_emissions_per_launch, 
-    aes(x = Constellation, y = total_emission_value, label = comma(round(total_emission_value))),
-    hjust = -0.1,
-    size = 5
   )
 
 filename_reusability <- "reusability_constellations.csv"
@@ -210,6 +238,15 @@ data_reusability$impact_category <- factor(
     "Launcher Transportation", "Electricity Consumption", "Propulsion System")
 )
 
+# For the reusability chart, we need to calculate error margins per impact category group
+reusability_summary <- data_reusability %>%
+  group_by(Reusable, impact_category) %>%
+  summarise(emission_value = sum(emission_value, na.rm = TRUE)) %>%
+  mutate(
+    lower = emission_value * 0.8,
+    upper = emission_value * 1.2
+  )
+
 total_emissions_reusability <- data_reusability %>%
   group_by(Reusable) %>%
   summarise(total_emission_value = sum(emission_value, na.rm = TRUE))
@@ -221,6 +258,24 @@ h_reusability_emissions <-
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma") +
+  # Add error bars with dodge positioning
+  geom_errorbar(
+    data = reusability_summary,
+    aes(x = Reusable, ymin = lower, ymax = upper, y = emission_value, group = impact_category),
+    position = position_dodge(0.9),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
+  # Place text to the right of the error bars with proper positioning
+  geom_text(
+    data = reusability_summary,
+    aes(x = Reusable, y = upper + (upper - lower) * 0.05, 
+        label = comma(round(emission_value)), group = impact_category), 
+    position = position_dodge(0.9),
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
     title = "Emissions for Constellations by Rocket Type",
@@ -231,7 +286,7 @@ h_reusability_emissions <-
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max_emission_reusability * 1.1)
+    limits = c(0, max(reusability_summary$upper) * 1.2)
   ) +
   theme(
     legend.position = "bottom",
@@ -249,12 +304,6 @@ h_reusability_emissions <-
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
     plot.subtitle = element_text(size = 12, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  ) +
-  geom_text(
-    aes(label = comma(round(emission_value))),
-    position = position_dodge(width = 0.9),
-    hjust = -0.1,
-    size = 5
   )
 
 filename_country = "constellation_emissions_by_country.csv"
@@ -296,13 +345,33 @@ data_country$impact_category = factor(
 
 total_emissions_country <- data_country %>%
   group_by(Country) %>%
-  summarise(total_emission_value = sum(emission_value, na.rm = TRUE))
+  summarise(total_emission_value = sum(emission_value, na.rm = TRUE)) %>%
+  # Add error margins (20% like in original code)
+  mutate(
+    lower = total_emission_value * 0.8,
+    upper = total_emission_value * 1.2
+  )
 
 d_country_emissions <-
   ggplot(data_country, aes(x = Country, y = emission_value)) +
   geom_bar(stat = "identity", aes(fill = impact_category), width = 0.7) +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma") +
+  # Add error bars
+  geom_errorbar(
+    data = total_emissions_country,
+    aes(x = Country, ymin = lower, ymax = upper, y = total_emission_value),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
+  # Place text to the right of the error bars
+  geom_text(
+    data = total_emissions_country, 
+    aes(x = Country, y = upper + (upper - lower) * 0.05, label = comma(round(total_emission_value))),
+    hjust = -0.1,
+    size = 5
+  ) +
   theme_minimal() +
   labs(
     title = "Average Greenhouse Gas Emissions by Country",
@@ -314,7 +383,7 @@ d_country_emissions <-
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max(total_emissions_country$total_emission_value, na.rm = TRUE) * 1.1)
+    limits = c(0, max(total_emissions_country$upper, na.rm = TRUE) * 1.15)
   ) +
   theme(
     legend.position = "bottom",
@@ -332,12 +401,6 @@ d_country_emissions <-
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
     plot.subtitle = element_text(size = 12, hjust = 0.5),
     plot.margin = margin(t = 20, r = 20, b = 20, l = 20)
-  ) +
-  geom_text(
-    data = total_emissions_country, 
-    aes(x = Country, y = total_emission_value, label = comma(round(total_emission_value))),
-    hjust = -0.1,
-    size = 5
   )
 
 emissions_plot <-
@@ -470,9 +533,24 @@ legend <- get_legend(
     )
 )
 
+shared_legend <- get_legend(
+  ggplot(data, aes(x = Constellation, y = emission_value, fill = impact_category)) +
+    geom_bar(stat = "identity") +
+    scale_fill_viridis_d(option = "plasma") +
+    guides(fill = guide_legend(nrow = 1, byrow = TRUE)) +
+    theme(
+      legend.position = "bottom", 
+      legend.box = "horizontal",
+      legend.text = element_text(size = 13),
+      legend.title = element_text(size = 11),
+      legend.spacing.x = unit(0.2, 'cm'),
+      legend.margin = margin(t = 5, r = 0, b = 0, l = 0)
+    )
+)
+
 final_plot <- ggarrange(
   f_emissions_updated,
-  legend,
+  shared_legend,
   ncol = 1,
   heights = c(0.92, 0.08)
 )

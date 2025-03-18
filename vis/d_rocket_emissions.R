@@ -48,6 +48,12 @@ data1 <- pivot_longer(
   values_to = "emission_value"
 )
 
+data_summary1_with_errors <- data_summary1 %>%
+  mutate(
+    lower = (total_emission / 1000) * 0.9,
+    upper = (total_emission / 1000) * 1.1
+  )
+
 data1$emission_value <- as.numeric(gsub(",", "", data1$emission_value))
 
 data1$impact_category = factor(
@@ -72,9 +78,16 @@ emissions_plot1 <- ggplot(data1, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
+  geom_errorbar(
+    data = data_summary1_with_errors,
+    aes(x = Rocket, ymin = lower, ymax = upper, y = total_emission / 1000),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
   geom_text(
     data = data_summary1, 
-    aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
+    aes(x = Rocket, y = (total_emission / 1000) * 1.1, label = comma(total_emission / 1000)), 
     hjust = -0.1,
     size = 5
   ) +
@@ -88,7 +101,7 @@ emissions_plot1 <- ggplot(data1, aes(x = Rocket, y = emission_value / 1000)) +
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max(data_summary1$total_emission / 1000) * 1.1)
+    limits = c(0, max(data_summary1$total_emission / 1000) * 1.2)
   ) +
   base_theme
 
@@ -131,13 +144,26 @@ data_summary2 <- data2 %>%
   group_by(Rocket) %>%
   summarise(total_emission = sum(emission_value))
 
+data_summary2_with_errors <- data_summary2 %>%
+  mutate(
+    lower = (total_emission / 1000) * 0.9,
+    upper = (total_emission / 1000) * 1.1
+  )
+
 emissions_plot2 <- ggplot(data2, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
+  geom_errorbar(
+    data = data_summary2_with_errors,
+    aes(x = Rocket, ymin = lower, ymax = upper, y = total_emission / 1000),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
   geom_text(
     data = data_summary2, 
-    aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
+    aes(x = Rocket, y = (total_emission / 1000) * 1.1, label = comma(total_emission / 1000)), 
     hjust = -0.1,
     size = 5
   ) +
@@ -151,7 +177,7 @@ emissions_plot2 <- ggplot(data2, aes(x = Rocket, y = emission_value / 1000)) +
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max(data_summary2$total_emission / 1000) * 1.1)
+    limits = c(0, max(data_summary2$total_emission / 1000) * 1.2)
   ) +
   base_theme
 
@@ -184,13 +210,26 @@ data_summary_reuse <- reusability_data %>%
   group_by(Rocket) %>%
   summarise(total_emission = sum(emission_value))
 
+data_summary_reuse_with_errors <- data_summary_reuse %>%
+  mutate(
+    lower = (total_emission / 1000) * 0.9,
+    upper = (total_emission / 1000) * 1.1
+  )
+
 reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value / 1000)) +
   geom_bar(stat = "identity", aes(fill = impact_category)) +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
+  geom_errorbar(
+    data = data_summary_reuse_with_errors,
+    aes(x = Rocket, ymin = lower, ymax = upper, y = total_emission / 1000),
+    width = 0.2,
+    size = 0.5,
+    color = "red"
+  ) +
   geom_text(
     data = data_summary_reuse, 
-    aes(x = Rocket, y = total_emission / 1000, label = comma(total_emission / 1000)), 
+    aes(x = Rocket, y = (total_emission / 1000) * 1.1, label = comma(total_emission / 1000)), 
     hjust = -0.1,
     size = 5
   ) +
@@ -203,7 +242,7 @@ reusability_plot <- ggplot(reusability_data, aes(x = Rocket, y = emission_value 
   scale_y_continuous(
     labels = comma,
     expand = c(0, 0),
-    limits = c(0, max(data_summary_reuse$total_emission / 1000) * 1.1)
+    limits = c(0, max(data_summary_reuse$total_emission / 1000) * 1.2)
   ) +
   base_theme
 
@@ -228,12 +267,25 @@ reusability2_data$impact_category <- factor(
   labels = c("Launch Event", "Launcher Production", "Electronics Production", "Launcher Transportation", "Electricity Consumption")
 )
 
+reusability2_summary <- reusability2_data %>%
+  group_by(Rocket, impact_category) %>%
+  summarise(total_category_emission = sum(emission_value), .groups = 'drop') %>%
+  mutate(
+    lower = (total_category_emission / 1000) * 0.9,
+    upper = (total_category_emission / 1000) * 1.1
+  )
+
+reusability2_data_with_label_pos <- reusability2_data %>%
+  group_by(Rocket, impact_category) %>%
+  summarise(emission_value = sum(emission_value), .groups = 'drop')
+
 reusability_plot2 <- ggplot(reusability2_data, aes(x = Rocket, y = emission_value / 1000, fill = impact_category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   scale_fill_viridis_d(option = "plasma", name = NULL) +
   geom_text(
-    aes(label = comma(emission_value / 1000)), 
+    data = reusability2_data_with_label_pos,
+    aes(x = Rocket, y = emission_value / 1000 * 1.1, label = comma(emission_value / 1000), fill = impact_category), 
     position = position_dodge(0.9), 
     hjust = -0.1,
     size = 5
@@ -246,7 +298,7 @@ reusability_plot2 <- ggplot(reusability2_data, aes(x = Rocket, y = emission_valu
   ) +
   scale_y_continuous(
     expand = expansion(mult = c(0, 0.05)), 
-    limits = c(0, max(reusability2_data$emission_value / 1000) * 1.15),
+    limits = c(0, max(reusability2_data$emission_value / 1000) * 1.25),
     labels = comma
   ) +
   base_theme
