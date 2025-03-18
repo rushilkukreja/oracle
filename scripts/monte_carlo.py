@@ -39,8 +39,8 @@ df_combined = df_subscribers.merge(df_emissions, on="Constellation")
 def monte_carlo_emissions_per_subscriber(subscribers, total_emissions, num_simulations=1000):
     results = []
     for _ in range(num_simulations):
-        low = subscribers * 0.9
-        high = subscribers * 1.1
+        low = subscribers * 0.75
+        high = subscribers * 1.25
         sampled_subscribers = np.random.normal(low, high)
         
         emissions_per_subscriber = total_emissions / sampled_subscribers * 10000
