@@ -124,14 +124,18 @@ def load_inputs():
 
 # ---------------------------------------------------------------- model
 
-def reusability_factor(log, params):
-    """Eqs. 5-6: RU = S1P x R x (1 - R_A)^(L / R). Expendable rockets have RU = 1."""
-    if not log["Reuses (R)"].strip():
+def amortization_factor(log, params):
+    """Eq. 5: share of full-vehicle production charged to each launch.
+
+    A = (1 - S1P) + S1P / R + R_A x (R - 1) / R, i.e. the first flight builds the
+    whole vehicle and each of the R - 1 reflights rebuilds the expendable stages
+    and refurbishes the rest. Expendable rockets have A = 1.
+    """
+    if not log["Flights per reusable stage (R)"].strip():
         return 1.0
     s1p = float(log["S1P"])
-    reuses = float(log["Reuses (R)"])
-    refurb_launches = float(log["Launches before refurbishment (L)"])
-    return s1p * reuses * (1 - params["refurbishment_factor"]) ** (refurb_launches / reuses)
+    flights = float(log["Flights per reusable stage (R)"])
+    return (1 - s1p) + s1p / flights + params["refurbishment_factor"] * (flights - 1) / flights
 
 
 def rocket_model(params, factors, rockets, logistics):
@@ -158,8 +162,8 @@ def rocket_model(params, factors, rockets, logistics):
             mass_t = (num(r["Dry Mass"]) + num(r["Propellant"])) / 1000
             transport = mass_t * float(log["Distance (km)"]) * factors["transport"][mode]
 
-        ru = reusability_factor(log, params)
-        reusable = ru != 1.0
+        share = amortization_factor(log, params)
+        reusable = share != 1.0
         s1p = float(log["S1P"]) if reusable else 1.0
         initial = {
             "Launch Event": launch,
@@ -171,7 +175,7 @@ def rocket_model(params, factors, rockets, logistics):
         # Eq. 4: production and electricity spread over the reuse life.
         amortized = dict(initial)
         for stage in ("Launcher Production", "Electronics Production", "Electricity Consumption"):
-            amortized[stage] = initial[stage] / ru
+            amortized[stage] = initial[stage] * share
         out[name] = {
             "payload": num(r["Payload Capacity"]),
             "dry_mass": num(r["Dry Mass"]),
@@ -179,7 +183,7 @@ def rocket_model(params, factors, rockets, logistics):
             "initial": initial,
             "amortized": amortized,
             # A reflight rebuilds the expendable upper stage and refurbishes the rest.
-            "subsequent_share": (1 - s1p) + params["subsequent_launch_refurbishment"],
+            "subsequent_share": (1 - s1p) + params["refurbishment_factor"],
         }
     return out
 

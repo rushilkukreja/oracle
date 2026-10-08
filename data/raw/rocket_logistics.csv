@@ -1,13 +1,13 @@
-Rocket,Material,Transportation,Distance (km),S1P,Reuses (R),Launches before refurbishment (L),Dry mass (kg)
-Ariane-5,Aluminum Alloy,Container Ship,7000,,,,
-Ariane-62,Aluminum Alloy,Eco-Friendly Ship,7000,,,,
-Ariane-64,Aluminum Alloy,Eco-Friendly Ship,7000,,,,
-Atlas V,Aluminum Alloy,Cargo Aircraft,870.29,,,,
-Falcon-9,Aluminum Alloy,Truck,4136,0.85,100,543.7,
-Falcon-Heavy,Aluminum Alloy,Truck,4136,0.85,100,543.7,
-Long March 5,Aluminum Alloy,Container Ship,3262.04,,,,
-LVM3,Aluminum Alloy,None,0,,,,
-New Glenn,Aluminum Alloy,Truck,14,0.86,25,0,
-Soyuz-FG,Aluminum Alloy,Train,1548,,,,
-Starship,Steel,None,0,1,100,543.7,
-Vulcan Centaur,Aluminum Alloy,Container Ship,911,,,,66107.43
+Rocket,Material,Transportation,Distance (km),S1P,Flights per reusable stage (R),Dry mass (kg)
+Ariane-5,Aluminum Alloy,Container Ship,7000,,,
+Ariane-62,Aluminum Alloy,Eco-Friendly Ship,7000,,,
+Ariane-64,Aluminum Alloy,Eco-Friendly Ship,7000,,,
+Atlas V,Aluminum Alloy,Cargo Aircraft,870.29,,,
+Falcon-9,Aluminum Alloy,Truck,4136,0.85,100,
+Falcon-Heavy,Aluminum Alloy,Truck,4136,0.85,100,
+Long March 5,Aluminum Alloy,Container Ship,3262.04,,,
+LVM3,Aluminum Alloy,None,0,,,
+New Glenn,Aluminum Alloy,Truck,14,0.86,25,
+Soyuz-FG,Aluminum Alloy,Train,1548,,,
+Starship,Steel,None,0,1,100,
+Vulcan Centaur,Aluminum Alloy,Container Ship,911,,,66107.43

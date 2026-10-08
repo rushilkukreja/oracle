@@ -6,7 +6,8 @@ distribution with mean equal to the estimate and standard deviation equal to
 SD_FRACTION x the estimate; non-positive draws are rejected. Total emissions
 come from results/constellation_emissions.csv (kt, summed over all stages),
 subscribers from results/subscribers_emissions.csv, and countries from
-data/raw/constellation_metadata.csv.
+data/raw/constellation_metadata.csv. Writes results/per_subscriber_uncertainty.csv
+and results/subscriber_uncertainty_by_country.csv.
 
 Usage:
     python3 scripts/monte_carlo.py
@@ -15,7 +16,6 @@ Usage:
 import csv
 import random
 import statistics
-import sys
 from pathlib import Path
 
 RESULTS = Path(__file__).resolve().parent.parent / "results"
@@ -74,10 +74,18 @@ def main():
         members = [n for n in data if country[n] == k]
         central[k] = sum(data[n][1] for n in members) * KG_PER_KT / sum(data[n][0] for n in members)
 
-    writer = csv.writer(sys.stdout)
-    writer.writerow(["Constellation or country", "Emissions_Per_Subscriber (kg)", "Std_Dev_Emissions_Per_Subscriber (kg)"])
-    for key in samples:
-        writer.writerow([key, f"{central[key]:.1f}", f"{statistics.stdev(samples[key]):.1f}"])
+    header = ["Emissions_Per_Subscriber (kg)", "Std_Dev_Emissions_Per_Subscriber (kg)"]
+    outputs = {
+        "per_subscriber_uncertainty.csv": ("Constellation", list(data) + ["Average across constellations"]),
+        "subscriber_uncertainty_by_country.csv": ("Country", countries),
+    }
+    for filename, (label, keys) in outputs.items():
+        with open(RESULTS / filename, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([label] + header)
+            for key in keys:
+                writer.writerow([key, f"{central[key]:.1f}", f"{statistics.stdev(samples[key]):.1f}"])
+        print(f"Wrote {RESULTS / filename}")
 
 
 if __name__ == "__main__":
