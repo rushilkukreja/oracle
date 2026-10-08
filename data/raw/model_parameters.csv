@@ -1,0 +1,10 @@
+Parameter,Value,Unit,Note
+structure_fraction,0.95,fraction of dry mass,Share of rocket dry mass that is structural material (Section 3.2)
+electronics_fraction,0.05,fraction of dry mass,Share of rocket dry mass that is electronics (Section 3.2)
+electricity_aluminum_alloy,6.63,kg CO2e per kg structural mass,C_j x E_j in Eq. 3 for aluminum-alloy launchers
+electricity_steel,0.3003,kg CO2e per kg structural mass,C_j x E_j in Eq. 3 for stainless steel (Starship)
+refurbishment_factor,0.1,fraction,R_A in Eqs. 5-6 (Section 3.4)
+subsequent_launch_refurbishment,0.02,fraction of full-vehicle production,Refurbishment charged to each reflight of a reusable rocket
+kr_xe_fraction,0.02,fraction of satellite mass,X_kx in Eq. 10 (Section 3.8)
+kr_xe_emission_factor,546,kg CO2e per kg Kr/Xe,E_kx in Eq. 10 (Section 3.8)
+subscribers_per_satellite,489.5,subscribers per satellite,S_factor in Eq. 11 from Starlink subscriber data (Section 3.9)

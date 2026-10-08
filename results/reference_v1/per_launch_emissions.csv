@@ -1,4 +1,4 @@
-Constellation,Launch Event,Launcher Production,Electronics Production,Launcher Transportation,Electricity Consumption,Satellite Kr/Xe Propellant
+Constellation,Launch Event,Launcher Production,Electronics Production,Launcher Transportation,Electricity Consumption,Propulsion System
 Astra,577.0,9.0,0.8,241.0,4.0,6.0
 BlueWalker,577.0,9.0,0.8,241.0,4.0,33.0
 Cinnamon-937,577.0,9.0,0.8,241.0,4.0,0.4
@@ -9,9 +9,9 @@ Hanwha,171.0,255.0,22.0,42.0,113.0,24.0
 Honghu-3,171.0,255.0,22.0,42.0,113.0,1.0
 HVNET,1651.0,21.0,2.0,685.0,10.0,31.0
 KLEO,171.0,255.0,22.0,42.0,113.0,2.0
-Kuiper,367.0,403.0,35.0,264.0,179.0,192.0
+Kuiper,367.0,403.0,35.0,264.0,179.0,191.0
 Lacuna,264.0,342.0,30.0,5.0,152.0,0.2
-Lightspeed,577.0,9.0,0.8,241.0,4.0,147.0
+Lightspeed,577.0,9.0,0.8,241.0,4.0,145.0
 Lynk,577.0,9.0,0.8,241.0,4.0,3.0
 Omni,577.0,9.0,0.8,241.0,4.0,0.5
 OneWeb,577.0,9.0,0.8,241.0,4.0,26.0
@@ -19,7 +19,7 @@ Rassvet,264.0,342.0,30.0,5.0,152.0,9.0
 Semaphore-C,577.0,9.0,0.8,241.0,4.0,0.4
 SferaCon,264.0,342.0,30.0,5.0,152.0,7.0
 Starlink (Gen2),5436.0,41.0,9.0,0.0,2.0,170.0
-Swarm,577.0,9.0,0.8,241.0,4.0,62.0
+Swarm,577.0,9.0,0.8,241.0,4.0,59.0
 Xingshidai,171.0,255.0,22.0,42.0,113.0,2.0
 Xingwang,171.0,255.0,22.0,42.0,113.0,9.0
 Yinhe,171.0,255.0,22.0,42.0,113.0,15.0

@@ -1,56 +1,84 @@
-import numpy as np
-import pandas as pd
+#!/usr/bin/env python3
+"""Monte Carlo uncertainty in emissions per subscriber (Section 3.11).
 
-subscriber_data = {
-    "Constellation": [
-        "Astra", "BlueWalker", "Cinnamon-937", "Flock", "Globalstar",
-        "Guowang", "Hanwha", "Honghu-3", "HVNET", "KLEO", "Kuiper",
-        "Lacuna", "Lightspeed", "Lynk", "Omni", "OneWeb", "Rassvet",
-        "Semaphore-C", "SferaCon", "Starlink (Gen2)", "Swarm",
-        "Xingshidai", "Xingwang", "Yinhe"
-    ],
-    "Subscribers": [
-        6666990, 118949, 165119609, 73425, 1507660, 6359584, 979000, 4895000,
-        704880, 146850, 1582064, 117480, 146850, 979000, 97900, 3469576,
-        440550, 57095280, 313280, 19284342, 73425, 97900, 472857, 489500
-    ]
-}
+For each constellation, the number of subscribers is drawn from a normal
+distribution with mean equal to the estimate and standard deviation equal to
+SD_FRACTION x the estimate; non-positive draws are rejected. Total emissions
+come from results/constellation_emissions.csv (kt, summed over all stages),
+subscribers from results/subscribers_emissions.csv, and countries from
+data/raw/constellation_metadata.csv.
 
-emissions_data = {
-    "Constellation": [
-        "Astra", "BlueWalker", "Cinnamon-937", "Flock", "Globalstar",
-        "Guowang", "Hanwha", "Honghu-3", "HVNET", "KLEO", "Kuiper",
-        "Lacuna", "Lightspeed", "Lynk", "Omni", "OneWeb", "Rassvet",
-        "Semaphore-C", "SferaCon", "Starlink (Gen2)", "Swarm",
-        "Xingshidai", "Xingwang", "Yinhe"
-    ],
-    "Total_Emissions": [
-        5706.8, 105.6, 69931.9, 3.3, 2585.7, 383.6, 156.9, 3021.9, 345.5, 90.8, 
-        172.8, 95.3, 16.7, 166.4, 16.6, 380.2, 241.9, 24711.9, 171.3, 3717.6, 
-        11.6, 15.3, 197.2, 103.3
-    ]
-}
+Usage:
+    python3 scripts/monte_carlo.py
+"""
 
-df_subscribers = pd.DataFrame(subscriber_data)
-df_emissions = pd.DataFrame(emissions_data)
+import csv
+import random
+import statistics
+import sys
+from pathlib import Path
 
-df_combined = df_subscribers.merge(df_emissions, on="Constellation")
+RESULTS = Path(__file__).resolve().parent.parent / "results"
+SD_FRACTION = 0.10
+NUM_SIMULATIONS = 10000
+SEED = 42
+KG_PER_KT = 1e6
 
-def monte_carlo_emissions_per_subscriber(subscribers, total_emissions, num_simulations=1000):
-    results = []
-    for _ in range(num_simulations):
-        low = subscribers * 0.75
-        high = subscribers * 1.25
-        sampled_subscribers = np.random.normal(low, high)
-        
-        emissions_per_subscriber = total_emissions / sampled_subscribers * 10000
-        
-        results.append(emissions_per_subscriber)
-    
-    return np.std(results)
 
-df_combined["Std_Dev_Emissions_Per_Subscriber"] = df_combined.apply(
-    lambda row: monte_carlo_emissions_per_subscriber(row["Subscribers"], row["Total_Emissions"], num_simulations=1000), axis=1
-)
+def num(value):
+    return float(value.replace(",", ""))
 
-print(df_combined)
+
+def load():
+    with open(RESULTS / "constellation_emissions.csv", newline="") as f:
+        emissions = {row["Constellation"]: sum(num(v) for k, v in row.items() if k != "Constellation") for row in csv.DictReader(f)}
+    with open(RESULTS / "subscribers_emissions.csv", encoding="utf-8-sig", newline="") as f:
+        subscribers = {row["Constellation"]: num(row["Subscribers"]) for row in csv.DictReader(f)}
+    return {name: (subscribers[name], emissions[name]) for name in subscribers}
+
+
+def country_of():
+    with open(RESULTS.parent / "data" / "raw" / "constellation_metadata.csv", newline="") as f:
+        return {row["Constellation"]: row["Country"] for row in csv.DictReader(f)}
+
+
+def sample_subscribers(subscribers, rng):
+    sampled = rng.gauss(subscribers, SD_FRACTION * subscribers)
+    while sampled <= 0:
+        sampled = rng.gauss(subscribers, SD_FRACTION * subscribers)
+    return sampled
+
+
+def main():
+    """Per-subscriber emissions (kg CO2e) and their standard deviation for each
+    constellation, for the average across constellations, and for each country
+    (total emissions / total subscribers)."""
+    rng = random.Random(SEED)
+    data = load()
+    country = country_of()
+    countries = sorted(set(country.values()))
+    samples = {key: [] for key in list(data) + ["Average across constellations"] + countries}
+    for _ in range(NUM_SIMULATIONS):
+        subs = {name: sample_subscribers(s, rng) for name, (s, _) in data.items()}
+        ratios = {name: data[name][1] * KG_PER_KT / subs[name] for name in data}
+        for name, value in ratios.items():
+            samples[name].append(value)
+        samples["Average across constellations"].append(statistics.fmean(ratios.values()))
+        for k in countries:
+            members = [n for n in data if country[n] == k]
+            samples[k].append(sum(data[n][1] for n in members) * KG_PER_KT / sum(subs[n] for n in members))
+
+    central = {name: total * KG_PER_KT / s for name, (s, total) in data.items()}
+    central["Average across constellations"] = statistics.fmean(central[n] for n in data)
+    for k in countries:
+        members = [n for n in data if country[n] == k]
+        central[k] = sum(data[n][1] for n in members) * KG_PER_KT / sum(data[n][0] for n in members)
+
+    writer = csv.writer(sys.stdout)
+    writer.writerow(["Constellation or country", "Emissions_Per_Subscriber (kg)", "Std_Dev_Emissions_Per_Subscriber (kg)"])
+    for key in samples:
+        writer.writerow([key, f"{central[key]:.1f}", f"{statistics.stdev(samples[key]):.1f}"])
+
+
+if __name__ == "__main__":
+    main()
