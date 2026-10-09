@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Print every number quoted in the paper's text, computed from the model.
 
+Standard deviations come from the Monte Carlo outputs, so run
+scripts/monte_carlo.py first.
+
 Usage:
     python3 scripts/paper_numbers.py
 """
 
+import csv
 import statistics as st
 import sys
 from pathlib import Path
@@ -24,12 +28,24 @@ def pct(x):
     return f"{100 * x:.1f}%"
 
 
+def load_sd():
+    """Standard deviation of emissions per subscriber, keyed by constellation or country."""
+    sd = {}
+    for name in ("per_subscriber_uncertainty.csv", "subscriber_uncertainty_by_country.csv"):
+        path = model.RESULTS / name
+        if not path.exists():
+            raise SystemExit(f"{path} not found; run scripts/monte_carlo.py first")
+        with open(path, newline="") as f:
+            for row in list(csv.reader(f))[1:]:
+                sd[row[0]] = float(row[2])
+    return sd
+
+
 def main():
-    params, propellant_ef, material_ef, transport_ef, rocket_rows, logistics, constellation_rows = model.load_inputs()
-    R = model.rocket_model(params, propellant_ef, material_ef, transport_ef, rocket_rows, logistics)
+    params, factors, rocket_rows, logistics, constellation_rows = model.load_inputs()
+    R = model.rocket_model(params, factors, rocket_rows, logistics)
     C = model.constellation_model(params, R, constellation_rows)
-    by_c, by_country = model.uncertainty(C, params["uncertainty_sd_fraction"])
-    sd = {row[0]: row[3] for row in by_c + by_country}
+    sd = load_sd()
     S, CS = model.ROCKET_STAGES, model.CONSTELLATION_STAGES
 
     print("== 4.1 Emissions per rocket")
@@ -48,44 +64,57 @@ def main():
         print(f"  {n}: production share {pct(R[n]['amortized']['Launcher Production'] / tot[n])}, per tonne payload {per_t[n] * 1000:,.0f} kg")
     tr = {n: R[n]["amortized"]["Launcher Transportation"] / tot[n] for n in R}
     print("transport share by rocket: " + ", ".join(f"{n} {pct(v)}" for n, v in sorted(tr.items(), key=lambda x: x[1])))
+    print(f"mean transport share across rockets: {pct(st.fmean(tr.values()))}")
     print(f"no-launch-event rockets: {[n for n in R if R[n]['amortized']['Launch Event'] == 0]}")
-    f9i = sum(R["Falcon-9"]["initial"].values()); f9a = tot["Falcon-9"]
-    print(f"Falcon 9: new vehicle {f9i / 1000:,.0f} t -> reuse-life average {f9a / 1000:,.0f} t")
+    f9 = R["Falcon-9"]
+    f9_initial = sum(f9["initial"].values())
+    f9_subsequent = sum(f9["initial"][s] * (f9["subsequent_share"] if s in ("Launcher Production", "Electronics Production", "Electricity Consumption") else 1) for s in S)
+    print(f"Falcon 9: initial launch {f9_initial / 1000:,.0f} t -> subsequent launch {f9_subsequent / 1000:,.0f} t")
     reu = [n for n in R if R[n]["reusable"]]; non = [n for n in R if not R[n]["reusable"]]
     pr = lambda ns: st.fmean(R[n]["amortized"]["Launcher Production"] for n in ns)
     print(f"production, reusable vs expendable: {pct(1 - pr(reu) / pr(non))} lower")
-    print(f"production share, expendable average: {pct(st.fmean(R[n]['amortized']['Launcher Production'] / tot[n] for n in non))}")
     launch_plus_prod = st.fmean(R[n]["amortized"]["Launch Event"] + R[n]["amortized"]["Launcher Production"] for n in R) / avg
     print(f"launch event + launcher production share of average rocket: {pct(launch_plus_prod)}")
 
     print("\n== 4.2 Emissions per constellation")
-    T = {n: sum(c["total_kt"].values()) for n, c in C.items()}
+    T = {n: sum(c["total_kg"].values()) / 1e6 for n, c in C.items()}
     grand = sum(T.values())
     print(f"highest: {max(T, key=T.get)} {max(T.values()):,.0f} kt; lowest: {min(T, key=T.get)} {min(T.values()):,.1f} kt")
+    share = {s: sum(c["total_kg"][s] for c in C.values()) / 1e6 / grand for s in CS}
     for s in CS:
-        print(f"  {s}: {pct(sum(c['total_kt'][s] for c in C.values()) / grand)} of all")
+        print(f"  {s}: {pct(share[s])} of all")
+    print(f"  launch event + transportation: {pct(share['Launch Event'] + share['Launcher Transportation'])}")
     for n in ("Starlink (Gen2)", "Kuiper", "Lacuna"):
-        print(f"  {n}: " + ", ".join(f"{s} {pct(C[n]['total_kt'][s] / T[n])}" for s in CS))
-    prod = {n: C[n]["total_kt"]["Launcher Production"] / T[n] for n in C}
+        print(f"  {n}: " + ", ".join(f"{s} {pct(C[n]['total_kg'][s] / 1e6 / T[n])}" for s in CS))
+    prod = {n: C[n]["total_kg"]["Launcher Production"] / 1e6 / T[n] for n in C}
     print(f"production share: min {min(prod, key=prod.get)} {pct(min(prod.values()))}, max {max(prod, key=prod.get)} {pct(max(prod.values()))}")
-    le = {n: C[n]["total_kt"]["Launch Event"] / T[n] for n in C}
+    le = {n: C[n]["total_kg"]["Launch Event"] / 1e6 / T[n] for n in C}
     print(f"launch event share: min {min(le, key=le.get)} {pct(min(le.values()))}, max {max(le, key=le.get)} {pct(max(le.values()))}")
-    pl = {n: sum(c["per_launch_t"].values()) for n, c in C.items()}
+    pl = {n: (sum(c["per_launch_kg"].values()) + c["propulsion_per_launch_kg"]) / 1000 for n, c in C.items()}
     top = sorted(pl, key=pl.get, reverse=True)
     print("per launch: " + ", ".join(f"{n} {pl[n]:,.0f} t" for n in top[:3]) + f"; below 1,500 t: {sum(v < 1500 for v in pl.values())} of {len(pl)}")
-    ps_share = {n: C[n]["total_kt"]["Satellite Kr/Xe Propellant"] / T[n] for n in C}
+    ps_share = {n: C[n]["total_kg"]["Satellite Kr/Xe Propellant"] / 1e6 / T[n] for n in C}
     print(f"satellite propellant share: max {max(ps_share, key=ps_share.get)} {pct(max(ps_share.values()))}")
-    print("stand-in satellites per launch: " + ", ".join(f"{n} {C[n]['per_rocket']:.0f}" for n in C if C[n]["stand_in"]))
+    for flag, label in ((True, "reusable"), (False, "non-reusable")):
+        ns = [n for n in C if C[n]["reusable"] == flag]
+        group = sum(T[n] for n in ns)
+        print(f"{label} launchers: {len(ns)} constellations, mean {group / len(ns):,.0f} kt, "
+              f"launcher production {pct(sum(C[n]['total_kg']['Launcher Production'] for n in ns) / 1e6 / group)}, "
+              f"launch event {pct(sum(C[n]['total_kg']['Launch Event'] for n in ns) / 1e6 / group)}")
 
     print("\n== 4.3 Emissions per user")
     subs = {n: c["subscribers"] for n, c in C.items()}
     print(f"subscribers: {min(subs, key=subs.get)} {min(subs.values()):,.0f} to {max(subs, key=subs.get)} {max(subs.values()):,.0f}; under 7 million: {sum(v < 7e6 for v in subs.values())} of {len(subs)}")
     ps = {n: sum(c["per_subscriber"].values()) for n, c in C.items()}
     mean = st.fmean(ps.values())
-    print(f"mean per user: {mean:.0f} (+/- {sd['All constellations (mean)']:.0f}) kg")
+    print(f"mean per user: {mean:.0f} (+/- {sd['Average across constellations']:.0f}) kg")
     for n in sorted(ps, key=ps.get, reverse=True):
         print(f"  {n}: {ps[n]:,.0f} (+/- {sd[n]:,.0f}) kg, {pct(ps[n] / mean - 1)} vs mean")
-    country = {row[0]: row[1] for row in by_country}
+    countries = sorted({c["country"] for c in C.values()})
+    country = {}
+    for k in countries:
+        members = [n for n in C if C[n]["country"] == k]
+        country[k] = sum(sum(C[n]["total_kg"].values()) for n in members) / sum(C[n]["subscribers"] for n in members)
     for k in sorted(country, key=country.get, reverse=True):
         print(f"  country {k}: {country[k]:.0f} (+/- {sd[k]:.0f}) kg, {pct(country[k] / mean - 1)} vs mean")
 

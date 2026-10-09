@@ -1,4 +1,4 @@
-﻿Transportation,Emissions Factor
+﻿Transportation,Emissions Factor (kg CO2e per t-km)
 Truck,0.11272
 Train,0.01409
 Cargo Aircraft,0.724226

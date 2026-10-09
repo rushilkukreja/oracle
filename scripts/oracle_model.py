@@ -96,7 +96,7 @@ def load_inputs():
     factors = {
         "propellant": {r["Propellant"]: float(r["Emissions Factor"]) for r in read_rows("propellant_emissions_factors.csv")},
         "material": {r["Material"]: float(r["Emissions Factor"]) for r in read_rows("dry_mass_emissions_factors.csv")},
-        "transport": {r["Transportation"]: float(r["Emissions Factor"]) for r in read_rows("transportation_emissions_factors.csv")},
+        "transport": {r["Transportation"]: float(r["Emissions Factor (kg CO2e per t-km)"]) for r in read_rows("transportation_emissions_factors.csv")},
     }
     rockets = read_keyed("rocket_data.csv", "Rocket")
     logistics = read_keyed("rocket_logistics.csv", "Rocket")
@@ -152,7 +152,8 @@ def rocket_model(params, factors, rockets, logistics):
         # Eq. 2: structure and electronics production.
         production = structure * factors["material"][material]
         electronics = dry * params["electronics_fraction"] * factors["material"]["Electronics"]
-        # Eq. 3: manufacturing electricity, per kg of structural material.
+        # Eq. 3: fabrication and assembly electricity, per kg of structural material.
+        # Electricity used to make the materials is already in the material factors.
         key = "electricity_" + ("steel" if material == "Steel" else "aluminum_alloy")
         electricity = structure * params[key]
         # Eq. 7: transport of the fuelled vehicle (t) over the route (km).
