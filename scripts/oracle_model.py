@@ -125,7 +125,7 @@ def load_inputs():
 # ---------------------------------------------------------------- model
 
 def amortization_factor(log, params):
-    """Eq. 5: share of full-vehicle production charged to each launch.
+    """Eq. 6: share of full-vehicle production charged to each launch.
 
     A = (1 - S1P) + S1P / R + R_A x (R - 1) / R, i.e. the first flight builds the
     whole vehicle and each of the R - 1 reflights rebuilds the expendable stages
@@ -149,14 +149,14 @@ def rocket_model(params, factors, rockets, logistics):
         material = log["Material"]
         # Eq. 1: propellant combustion.
         launch = sum(num(r[p]) * ef for p, ef in factors["propellant"].items())
-        # Eq. 2: structure and electronics production.
+        # Eq. 3: structure and electronics production.
         production = structure * factors["material"][material]
         electronics = dry * params["electronics_fraction"] * factors["material"]["Electronics"]
-        # Eq. 3: fabrication and assembly electricity, per kg of structural material.
+        # Eq. 4: fabrication and assembly electricity, per kg of structural material.
         # Electricity used to make the materials is already in the material factors.
         key = "electricity_" + ("steel" if material == "Steel" else "aluminum_alloy")
         electricity = structure * params[key]
-        # Eq. 7: transport of the fuelled vehicle (t) over the route (km).
+        # Eq. 8: transport of the fuelled vehicle (t) over the route (km).
         mode = log["Transportation"]
         transport = 0.0
         if mode != "None":
@@ -173,7 +173,7 @@ def rocket_model(params, factors, rockets, logistics):
             "Launcher Transportation": transport,
             "Electricity Consumption": electricity,
         }
-        # Eq. 4: production and electricity spread over the reuse life.
+        # Eq. 5: production and electricity spread over the reuse life.
         amortized = dict(initial)
         for stage in ("Launcher Production", "Electronics Production", "Electricity Consumption"):
             amortized[stage] = initial[stage] * share
@@ -196,11 +196,11 @@ def constellation_model(params, rockets, constellations):
     for name, c in constellations.items():
         per_launch = rockets[c["rocket"]]["amortized"]
         launches = math.ceil(c["satellites"] / c["per_rocket"])
-        # Eq. 9: launches needed x per-launch emissions; Eq. 10: Kr/Xe propellant.
+        # Eq. 10: launches needed x per-launch emissions; Eq. 11: Kr/Xe propellant.
         total_kg = {s: launches * per_launch[s] for s in ROCKET_STAGES}
         total_kg["Satellite Kr/Xe Propellant"] = c["satellites"] * c["mass"] * kr_xe
         total_kt = {s: round_half_up(v / 1e6, 1) for s, v in total_kg.items()}
-        # Eq. 11: subscribers scale with constellation size.
+        # Eq. 12: subscribers scale with constellation size.
         subscribers_exact = c["satellites"] * params["subscribers_per_satellite"]
         subscribers = round_half_up(subscribers_exact)
         out[name] = {
@@ -212,7 +212,7 @@ def constellation_model(params, rockets, constellations):
             "propulsion_per_launch_kg": c["per_rocket"] * c["mass"] * kr_xe,
             "total_kg": total_kg,
             "total_kt": total_kt,
-            # Eq. 12: emissions per subscriber.
+            # Eq. 13: emissions per subscriber.
             "per_subscriber": {s: v / subscribers for s, v in total_kg.items()},
         }
     return out

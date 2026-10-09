@@ -1,5 +1,6 @@
 ﻿Propellant,Emissions Factor
-Solid,0.36257
-Cryogenic,0
-Kerosene,1.18171
-Hypergolic,0.846
+Solid,0.4350
+Cryogenic,0.0000
+Kerosene,0.8841
+Methane,0.5966
+Hypergolic,0.4885

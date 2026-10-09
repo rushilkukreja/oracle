@@ -1,0 +1,6 @@
+Propellant,Carbon-bearing component,Component mass fraction of propellant,Carbon mass fraction of component,Basis
+Solid,HTPB binder,0.14,0.848,"AP/Al/HTPB composite propellant with 14% binder; HTPB taken as C7.075H10.65O0.223N0.063"
+Cryogenic,None,0,0,"LOX/LH2 contains no carbon"
+Kerosene,RP-1,0.2809,0.859,"LOX/RP-1 at oxidizer-to-fuel mass ratio 2.56; RP-1 taken as CH1.953"
+Methane,CH4,0.2174,0.749,"LOX/CH4 at oxidizer-to-fuel mass ratio 3.6"
+Hypergolic,UDMH,0.3333,0.400,"N2O4/UDMH at oxidizer-to-fuel mass ratio 2.0; UDMH is C2H8N2"

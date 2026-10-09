@@ -123,16 +123,16 @@ data <- read.csv(file.path(folder, '../data/raw', 'rocket_data.csv'))
 data <- data %>%
   select(
     Rocket, 
-    Solid, Cryogenic, Kerosene, Hypergolic
+    Solid, Cryogenic, Kerosene, Methane, Hypergolic
   )
 
 data <- data %>%
-  pivot_longer(cols = c(Solid, Cryogenic, Kerosene, Hypergolic),
+  pivot_longer(cols = c(Solid, Cryogenic, Kerosene, Methane, Hypergolic),
                names_to = "Propellant_Type", values_to = "emission_value")
 
 data$Propellant_Type <- factor(
   data$Propellant_Type,
-  levels = c("Solid", "Cryogenic", "Kerosene", "Hypergolic"))
+  levels = c("Solid", "Cryogenic", "Kerosene", "Methane", "Hypergolic"))
 
 data$Rocket <- factor(
   data$Rocket,

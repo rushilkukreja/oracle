@@ -20,8 +20,8 @@ colnames(rct) <- new_names
 
 rct_transposed <- t(rct)
 
-rct_first_half <- rct_transposed[, 1:4]
-rct_second_half <- rct_transposed[, 5:ncol(rct_transposed)]
+rct_first_half <- rct_transposed[, 1:5]
+rct_second_half <- rct_transposed[, 6:ncol(rct_transposed)]
 
 folder_tables <- file.path(folder, 'figures', 'ab_tables')
 dir.create(folder_tables, showWarnings = FALSE, recursive = TRUE)
@@ -36,11 +36,12 @@ png(
   res = 480
 )
 
-headers <- rownames(rct)[1:4]
+headers <- rownames(rct)[1:5]
 headers_with_breaks <- c(
   "Solid propellant\nmass (kg)",
-  "Cyrogenic propellant\nmass (kg)", 
+  "Cryogenic propellant\nmass (kg)", 
   "Kerosene propellant\nmass (kg)",
+  "Methane propellant\nmass (kg)",
   "Hypergolic propellant\nmass (kg)"
 )
 
