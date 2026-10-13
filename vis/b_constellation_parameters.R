@@ -11,6 +11,17 @@ folder <- tryCatch(
   error = function(e) dirname(normalizePath(sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])))
 )
 
+# Trim the white border around a saved PNG, leaving a small margin
+trim_png <- function(path, margin = 40) {
+  img <- png::readPNG(path)
+  ink <- rowMeans(img[, , 1:3, drop = FALSE], dims = 2) < 0.99
+  rows <- which(rowSums(ink) > 0)
+  cols <- which(colSums(ink) > 0)
+  rows <- max(1, min(rows) - margin):min(nrow(img), max(rows) + margin)
+  cols <- max(1, min(cols) - margin):min(ncol(img), max(cols) + margin)
+  png::writePNG(img[rows, cols, , drop = FALSE], path, dpi = 480)
+}
+
 set_equal_widths <- function(table_grob) {
   n_col <- ncol(table_grob)
   equal_width <- unit(0.9 / n_col, "npc")
@@ -40,3 +51,4 @@ table_grob1 <- set_equal_widths(table_grob1)
 grid.newpage()
 grid.draw(table_grob1)
 dev.off()
+trim_png(path1)

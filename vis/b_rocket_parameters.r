@@ -11,6 +11,17 @@ folder <- tryCatch(
   error = function(e) dirname(normalizePath(sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])))
 )
 
+# Trim the white border around a saved PNG, leaving a small margin
+trim_png <- function(path, margin = 40) {
+  img <- png::readPNG(path)
+  ink <- rowMeans(img[, , 1:3, drop = FALSE], dims = 2) < 0.99
+  rows <- which(rowSums(ink) > 0)
+  cols <- which(colSums(ink) > 0)
+  rows <- max(1, min(rows) - margin):min(nrow(img), max(rows) + margin)
+  cols <- max(1, min(cols) - margin):min(ncol(img), max(cols) + margin)
+  png::writePNG(img[rows, cols, , drop = FALSE], path, dpi = 480)
+}
+
 rct <- read.csv(file.path(folder, '..', 'data', 'raw', "rocket_parameters.csv"),
                 row.names = 1)
 new_names <- c('Ariane-5', 'Ariane-62', 'Ariane-64', 'Atlas V', 'Falcon-9', 
@@ -59,6 +70,7 @@ for (i in seq_len(ncol(rct_first_half))) {
 grid.newpage()
 grid.draw(table_grob_first)
 dev.off()
+trim_png(path_first)
 
 filename_second = 'b_rocket_parameters_table_2.png'
 path_second = file.path(folder_tables, filename_second)
@@ -112,3 +124,4 @@ table_grob_second <- tableGrob(rct_second_half_modified)
 grid.newpage()
 grid.draw(table_grob_second)
 dev.off()
+trim_png(path_second)
