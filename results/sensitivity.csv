@@ -1,0 +1,14 @@
+Case,Mean per launch (t),All constellations (Mt),Mean per subscriber (kg),Launch event share of total
+Base case,"1,233",9.14,286,60.9%
+Transport includes propellant mass,"1,359",10.69,336,52.1%
+Flights per reusable stage R = 10,"1,270",9.50,293,58.6%
+Flights per reusable stage R = 20,"1,247",9.30,289,59.9%
+"Planned satellites per launch, not payload-scaled","1,233",79.31,478,74.5%
+Kerosene O/F = 2.3,"1,250",9.43,297,62.2%
+Kerosene O/F = 2.7,"1,224",8.99,281,60.3%
+Hypergolic O/F = 1.7,"1,233",9.14,286,60.9%
+Hypergolic O/F = 2.7,"1,232",9.14,286,60.9%
+Kr/Xe emission factor x 0.5,"1,233",8.98,283,62.0%
+Kr/Xe emission factor x 2,"1,233",9.46,292,58.9%
+Subscribers per satellite x 0.5,"1,233",9.14,572,60.9%
+Subscribers per satellite x 2,"1,233",9.14,143,60.9%

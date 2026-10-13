@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Monte Carlo uncertainty in emissions per subscriber (Section 3.11).
+"""Monte Carlo uncertainty in emissions per subscriber (Section 3.10).
 
 For each constellation, the number of subscribers is drawn from a normal
 distribution with mean equal to the estimate and standard deviation equal to
-SD_FRACTION x the estimate; non-positive draws are rejected. Total emissions
-come from results/constellation_emissions.csv (kt, summed over all stages),
-subscribers from results/subscribers_emissions.csv, and countries from
-data/raw/constellation_metadata.csv. Writes results/per_subscriber_uncertainty.csv
-and results/subscriber_uncertainty_by_country.csv.
+SD_FRACTION x the estimate; non-positive draws are rejected. Total emissions,
+subscribers and countries come straight from scripts/oracle_model.py, so the
+central estimates match the model exactly. Writes
+results/per_subscriber_uncertainty.csv and
+results/subscriber_uncertainty_by_country.csv.
 
 Usage:
     python3 scripts/monte_carlo.py
@@ -16,30 +16,26 @@ Usage:
 import csv
 import random
 import statistics
+import sys
 from pathlib import Path
 
-RESULTS = Path(__file__).resolve().parent.parent / "results"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import oracle_model as model  # noqa: E402
+
+RESULTS = model.RESULTS
 SD_FRACTION = 0.10
 NUM_SIMULATIONS = 10000
 SEED = 42
 KG_PER_KT = 1e6
 
 
-def num(value):
-    return float(value.replace(",", ""))
-
-
 def load():
-    with open(RESULTS / "constellation_emissions.csv", newline="") as f:
-        emissions = {row["Constellation"]: sum(num(v) for k, v in row.items() if k != "Constellation") for row in csv.DictReader(f)}
-    with open(RESULTS / "subscribers_emissions.csv", encoding="utf-8-sig", newline="") as f:
-        subscribers = {row["Constellation"]: num(row["Subscribers"]) for row in csv.DictReader(f)}
-    return {name: (subscribers[name], emissions[name]) for name in subscribers}
-
-
-def country_of():
-    with open(RESULTS.parent / "data" / "raw" / "constellation_metadata.csv", newline="") as f:
-        return {row["Constellation"]: row["Country"] for row in csv.DictReader(f)}
+    """(subscribers, total kt) and country for each constellation, from the model."""
+    params, factors, rocket_rows, logistics, constellation_rows = model.load_inputs()
+    rockets = model.rocket_model(params, factors, rocket_rows, logistics)
+    constellations = model.constellation_model(params, rockets, constellation_rows)
+    data = {n: (c["subscribers_exact"], sum(c["total_kg"].values()) / KG_PER_KT) for n, c in constellations.items()}
+    return data, {n: c["country"] for n, c in constellations.items()}
 
 
 def sample_subscribers(subscribers, rng):
@@ -54,8 +50,7 @@ def main():
     constellation, for the average across constellations, and for each country
     (total emissions / total subscribers)."""
     rng = random.Random(SEED)
-    data = load()
-    country = country_of()
+    data, country = load()
     countries = sorted(set(country.values()))
     samples = {key: [] for key in list(data) + ["Average across constellations"] + countries}
     for _ in range(NUM_SIMULATIONS):

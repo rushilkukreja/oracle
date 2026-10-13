@@ -57,7 +57,7 @@ payload_capacity_plot <- ggplot(rocket_data,
   labs(
     title = "Payload Capacity by Rocket",
     x = NULL,
-    y = "Payload Capacity (kg)", 
+    y = "Payload Capacity (tonnes)", 
     fill = 'Region'
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 150)) +
@@ -83,7 +83,7 @@ dry_mass_plot <- ggplot(rocket_data,
     y = "Dry Mass (kg)", 
     fill = 'Region'
   ) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 450000), labels = scales::comma) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 500000), labels = scales::comma) +
   shared_color_scale +
   theme(
     axis.title = element_text(size = 12),
@@ -103,7 +103,7 @@ propellant_usage_plot <- ggplot(rocket_data,
   labs(
     title = "Propellant Usage by Rocket",
     x = NULL,
-    y = "Amount of Propellant", 
+    y = "Propellant Mass (kg)", 
     fill = 'Region'
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 5500000), labels = scales::comma) +

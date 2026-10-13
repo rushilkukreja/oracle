@@ -1,10 +1,10 @@
 Country,Emissions_Per_Subscriber (kg),Std_Dev_Emissions_Per_Subscriber (kg)
-Canada,108.3,11.3
-China,280.7,18.8
-France,402.3,41.7
-Germany,574.1,60.1
-Russia,500.6,36.9
-Rwanda,402.3,41.9
-South Korea,149.2,15.5
-United Kingdom,124.8,12.6
-United States,340.8,22.7
+Canada,77.7,8.1
+China,270.5,18.1
+France,3.8,0.4
+Germany,24.9,2.6
+Russia,428.8,31.6
+Rwanda,3.8,0.4
+South Korea,46.1,4.8
+United Kingdom,89.0,9.0
+United States,137.2,9.1

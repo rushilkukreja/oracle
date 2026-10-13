@@ -22,13 +22,12 @@ data2 <- select(
   Launcher.Production,
   Electronics.Production,
   Launcher.Transportation,
-  Electricity.Consumption,
   Satellite.Kr.Xe.Propellant
 )
 
 data2 <- pivot_longer(
   data2,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Satellite.Kr.Xe.Propellant),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -37,10 +36,10 @@ data2$impact_category <- factor(
   data2$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant"))
+    "Launcher Transportation", "Satellite Propellant"))
 
 total_emissions2 <- data2 %>%
   group_by(Constellation) %>%
@@ -110,7 +109,7 @@ filename4 <- "subscriber_emissions_by_country.csv"
 data4 <- read.csv(file.path(folder, '../results', filename4))
 data4 <- pivot_longer(
   data4,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Satellite.Kr.Xe.Propellant),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -119,10 +118,10 @@ data4$impact_category <- factor(
   data4$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant"))
+    "Launcher Transportation", "Satellite Propellant"))
 
 total_emissions4 <- data4 %>%
   group_by(Country) %>%
@@ -200,10 +199,10 @@ data_reusability$impact_category <- factor(
   data_reusability$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant")
+    "Launcher Transportation", "Satellite Propellant")
 )
 
 total_emissions_reusability <- data_reusability %>%

@@ -22,11 +22,13 @@ path_out = file.path(folder_tables, filename)
 dir.create(file.path(folder, 'figures'), showWarnings = FALSE)
 dir.create(file.path(folder_tables), showWarnings = FALSE)
 
-table_grob <- tableGrob(rct)
+table_grob <- tableGrob(rct, theme = ttheme_default(core = list(fg_params = list(fontsize = 11.5))))
 n_col <- ncol(rct)
 for (i in seq_len(n_col)) {
   table_grob$widths[i] <- unit(0.13, "npc")
 }
+# Same width for the last column (Falcon-Heavy, Vulcan Centaur) in both tables
+table_grob$widths[n_col + 1] <- unit(0.135, "npc")
 png(
   path_out,
   units = "in",
@@ -55,11 +57,13 @@ png(
   height = 3,
   res = 480
 )
-table_grob <- tableGrob(rct)
+table_grob <- tableGrob(rct, theme = ttheme_default(core = list(fg_params = list(fontsize = 11.5))))
 n_col <- ncol(rct)
 for (i in seq_len(n_col)) {
   table_grob$widths[i] <- unit(0.13, "npc")
 }
+# Same width for the last column (Falcon-Heavy, Vulcan Centaur) in both tables
+table_grob$widths[n_col + 1] <- unit(0.135, "npc")
 grid.newpage()
 grid.draw(table_grob)
 dev.off()

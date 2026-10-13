@@ -21,7 +21,6 @@ data = select(
   Launcher.Production,
   Electronics.Production,
   Launcher.Transportation,
-  Electricity.Consumption,
   Satellite.Kr.Xe.Propellant
 )
 
@@ -29,14 +28,13 @@ data$Launch.Event <- as.numeric(gsub(",", "", data$Launch.Event))
 data$Launcher.Production <- as.numeric(gsub(",", "", data$Launcher.Production))
 data$Electronics.Production <- as.numeric(gsub(",", "", data$Electronics.Production))
 data$Launcher.Transportation <- as.numeric(gsub(",", "", data$Launcher.Transportation))
-data$Electricity.Consumption <- as.numeric(gsub(",", "", data$Electricity.Consumption))
 data$Satellite.Kr.Xe.Propellant <- as.numeric(gsub(",", "", data$Satellite.Kr.Xe.Propellant))
 
 total_emissions1 <- data %>%
   group_by(Constellation) %>%
   summarise(total_emission_value = sum(
     Launch.Event, Launcher.Production, Electronics.Production, 
-    Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant, 
+    Launcher.Transportation, Satellite.Kr.Xe.Propellant, 
     na.rm = TRUE
   )) %>%
   # Add error margins (20% like in original code)
@@ -49,7 +47,7 @@ max_emission1 <- max(total_emissions1$total_emission_value, na.rm = TRUE)
 
 data <- pivot_longer(
   data,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Satellite.Kr.Xe.Propellant),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -58,10 +56,10 @@ data$impact_category = factor(
   data$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant"))
+    "Launcher Transportation", "Satellite Propellant"))
 
 data <- data %>%
   group_by(Constellation) %>%
@@ -120,7 +118,6 @@ data_per_launch = select(
   Launcher.Production,
   Electronics.Production,
   Launcher.Transportation,
-  Electricity.Consumption,
   Satellite.Kr.Xe.Propellant
 )
 
@@ -128,14 +125,13 @@ data_per_launch$Launch.Event <- as.numeric(gsub(",", "", data_per_launch$Launch.
 data_per_launch$Launcher.Production <- as.numeric(gsub(",", "", data_per_launch$Launcher.Production))
 data_per_launch$Electronics.Production <- as.numeric(gsub(",", "", data_per_launch$Electronics.Production))
 data_per_launch$Launcher.Transportation <- as.numeric(gsub(",", "", data_per_launch$Launcher.Transportation))
-data_per_launch$Electricity.Consumption <- as.numeric(gsub(",", "", data_per_launch$Electricity.Consumption))
 data_per_launch$Satellite.Kr.Xe.Propellant <- as.numeric(gsub(",", "", data_per_launch$Satellite.Kr.Xe.Propellant))
 
 total_emissions_per_launch <- data_per_launch %>%
   group_by(Constellation) %>%
   summarise(total_emission_value = sum(
     Launch.Event, Launcher.Production, Electronics.Production, 
-    Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant, 
+    Launcher.Transportation, Satellite.Kr.Xe.Propellant, 
     na.rm = TRUE
   )) %>%
   # Add error margins (20% like in original code)
@@ -148,7 +144,7 @@ max_emission_per_launch <- max(total_emissions_per_launch$total_emission_value, 
 
 data_per_launch <- pivot_longer(
   data_per_launch,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Satellite.Kr.Xe.Propellant),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -157,10 +153,10 @@ data_per_launch$impact_category = factor(
   data_per_launch$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant"))
+    "Launcher Transportation", "Satellite Propellant"))
 
 g_constellation_emissions <-
   ggplot(data_per_launch, aes(x = Constellation, y = emission_value)) +
@@ -219,10 +215,10 @@ data_reusability$impact_category <- factor(
   data_reusability$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant")
+    "Launcher Transportation", "Satellite Propellant")
 )
 
 # For the reusability chart, we need to calculate error margins per impact category group
@@ -294,7 +290,6 @@ data_country = select(
   Launcher.Production,
   Electronics.Production,
   Launcher.Transportation,
-  Electricity.Consumption,
   Satellite.Kr.Xe.Propellant
 )
 
@@ -302,12 +297,11 @@ data_country$Launch.Event <- as.numeric(gsub(",", "", data_country$Launch.Event)
 data_country$Launcher.Production <- as.numeric(gsub(",", "", data_country$Launcher.Production))
 data_country$Electronics.Production <- as.numeric(gsub(",", "", data_country$Electronics.Production))
 data_country$Launcher.Transportation <- as.numeric(gsub(",", "", data_country$Launcher.Transportation))
-data_country$Electricity.Consumption <- as.numeric(gsub(",", "", data_country$Electricity.Consumption))
 data_country$Satellite.Kr.Xe.Propellant <- as.numeric(gsub(",", "", data_country$Satellite.Kr.Xe.Propellant))
 
 data_country <- pivot_longer(
   data_country,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption, Satellite.Kr.Xe.Propellant),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Satellite.Kr.Xe.Propellant),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -316,10 +310,10 @@ data_country$impact_category = factor(
   data_country$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption", "Satellite.Kr.Xe.Propellant"),
+    "Launcher.Transportation", "Satellite.Kr.Xe.Propellant"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption", "Satellite Propellant"))
+    "Launcher Transportation", "Satellite Propellant"))
 
 total_emissions_country <- data_country %>%
   group_by(Country) %>%

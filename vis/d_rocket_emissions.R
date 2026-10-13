@@ -13,7 +13,7 @@ folder <- tryCatch(
 )
 visualizations = file.path(folder, 'figures')
 filename1 = "rocket_emissions.csv"
-data1 <- read.csv(file.path(folder, '../results', filename1))
+data1 <- read.csv(file.path(folder, '../results', filename1), colClasses = "character")
 
 base_theme <- theme(
   legend.position = "none",
@@ -40,13 +40,12 @@ data1 = select(
   Launch.Event,
   Launcher.Production,
   Electronics.Production,
-  Launcher.Transportation,
-  Electricity.Consumption
+  Launcher.Transportation
 )
 
 data1 <- pivot_longer(
   data1,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -58,10 +57,10 @@ data1$impact_category = factor(
   data1$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption"),
+    "Launcher.Transportation"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption"))
+    "Launcher Transportation"))
 
 data1$Rocket = factor(
   data1$Rocket,
@@ -96,7 +95,7 @@ emissions_plot1 <- ggplot(data1, aes(x = Rocket, y = emission_value / 1000)) +
   ) +
   base_theme
 
-data2 <- read.csv(file.path(folder, '../results', "adjusted_rocket_emissions.csv"))
+data2 <- read.csv(file.path(folder, '../results', "adjusted_rocket_emissions.csv"), colClasses = "character")
 
 data2 <- select(
   data2, 
@@ -104,13 +103,12 @@ data2 <- select(
   Launch.Event,
   Launcher.Production,
   Electronics.Production,
-  Launcher.Transportation,
-  Electricity.Consumption
+  Launcher.Transportation
 )
 
 data2 <- pivot_longer(
   data2,
-  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption),
+  cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -121,10 +119,10 @@ data2$impact_category = factor(
   data2$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption"),
+    "Launcher.Transportation"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption"))
+    "Launcher Transportation"))
 
 data2$Rocket = factor(
   data2$Rocket,
@@ -164,7 +162,7 @@ reusability_data <- read.csv(file.path(folder, '../results', 'reusability.csv'))
 
 reusability_data <- pivot_longer(
   reusability_data,
-  cols = c("Launch.Event", "Launcher.Production", "Electronics.Production", "Launcher.Transportation", "Electricity.Consumption"),
+  cols = c("Launch.Event", "Launcher.Production", "Electronics.Production", "Launcher.Transportation"),
   names_to = "impact_category",
   values_to = "emission_value"
 )
@@ -180,10 +178,10 @@ reusability_data$impact_category = factor(
   reusability_data$impact_category,
   levels = c(
     "Launch.Event", "Launcher.Production", "Electronics.Production",
-    "Launcher.Transportation", "Electricity.Consumption"),
+    "Launcher.Transportation"),
   labels = c(
     "Launch Event", "Launcher Production", "Electronics Production",
-    "Launcher Transportation", "Electricity Consumption"))
+    "Launcher Transportation"))
 
 data_summary_reuse <- reusability_data %>%
   group_by(Rocket) %>%
@@ -217,7 +215,7 @@ reusability2_data <- read.csv(file.path(folder, '../results', 'reusability_rocke
 
 reusability2_data <- reusability2_data %>%
   pivot_longer(
-    cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation, Electricity.Consumption),
+    cols = c(Launch.Event, Launcher.Production, Electronics.Production, Launcher.Transportation),
     names_to = "impact_category",
     values_to = "emission_value"
   ) %>%
@@ -230,8 +228,8 @@ reusability2_data$Rocket <- factor(reusability2_data$Rocket,
 
 reusability2_data$impact_category <- factor(
   reusability2_data$impact_category,
-  levels = c("Launch.Event", "Launcher.Production", "Electronics.Production", "Launcher.Transportation", "Electricity.Consumption"),
-  labels = c("Launch Event", "Launcher Production", "Electronics Production", "Launcher Transportation", "Electricity Consumption")
+  levels = c("Launch.Event", "Launcher.Production", "Electronics.Production", "Launcher.Transportation"),
+  labels = c("Launch Event", "Launcher Production", "Electronics Production", "Launcher Transportation")
 )
 
 reusability2_summary <- reusability2_data %>%

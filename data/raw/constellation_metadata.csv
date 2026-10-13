@@ -1,25 +1,25 @@
-Constellation,Country,Modeled rocket,Reusable launcher,In country means
-Astra,United States,Falcon-9,No,Yes
-BlueWalker,United States,Falcon-9,Yes,Yes
-Cinnamon-937,Rwanda,Falcon-9,No,No
-Flock,United States,Falcon-9,Yes,Yes
-Globalstar,United States,Falcon-9,Yes,Yes
-Guowang,China,Long March 5,No,Yes
-Hanwha,South Korea,Long March 5,No,Yes
-Honghu-3,China,Long March 5,No,Yes
-HVNET,United States,Falcon-Heavy,Yes,Yes
-KLEO,Germany,Long March 5,No,Yes
-Kuiper,United States,Atlas V,No,Yes
-Lacuna,United Kingdom,Soyuz-FG,No,Yes
-Lightspeed,Canada,Falcon-9,Yes,Yes
-Lynk,United States,Falcon-9,Yes,Yes
-Omni,United States,Falcon-9,Yes,Yes
-OneWeb,United Kingdom,Falcon-9,Yes,Yes
-Rassvet,Russia,Soyuz-FG,No,Yes
-Semaphore-C,France,Falcon-9,No,No
-SferaCon,Russia,Soyuz-FG,No,Yes
-Starlink (Gen2),United States,Starship,Yes,Yes
-Swarm,United States,Falcon-9,Yes,Yes
-Xingshidai,China,Long March 5,No,Yes
-Xingwang,China,Long March 5,No,Yes
-Yinhe,China,Long March 5,No,Yes
+Constellation,Country,Modeled rocket,Planned launcher,Planned launcher payload (t),In country means
+Astra,United States,Falcon-9,Electron,0.3,Yes
+BlueWalker,United States,Falcon-9,Falcon 9,,Yes
+Cinnamon-937,Rwanda,Falcon-9,Electron,0.3,No
+Flock,United States,Falcon-9,Falcon 9,,Yes
+Globalstar,United States,Falcon-9,Falcon 9,,Yes
+Guowang,China,Long March 5,Long March 5,,Yes
+Hanwha,South Korea,Long March 5,Nuri,1.5,Yes
+Honghu-3,China,Long March 5,Zhuque-2,4,Yes
+HVNET,United States,Falcon-Heavy,Falcon Heavy,,Yes
+KLEO,Germany,Long March 5,Kuaizhou-1A,0.3,Yes
+Kuiper,United States,Atlas V,Atlas V,,Yes
+Lacuna,United Kingdom,Soyuz-FG,Soyuz-FG,,Yes
+Lightspeed,Canada,Falcon-9,Falcon 9,,Yes
+Lynk,United States,Falcon-9,Falcon 9,,Yes
+Omni,United States,Falcon-9,Falcon 9,,Yes
+OneWeb,United Kingdom,Falcon-9,Falcon 9,,Yes
+Rassvet,Russia,Soyuz-FG,Soyuz-FG,,Yes
+Semaphore-C,France,Falcon-9,Electron,0.3,No
+SferaCon,Russia,Soyuz-FG,Soyuz-FG,,Yes
+Starlink (Gen2),United States,Starship,Starship,,Yes
+Swarm,United States,Falcon-9,Falcon 9,,Yes
+Xingshidai,China,Long March 5,Long March 5,,Yes
+Xingwang,China,Long March 5,Long March 5,,Yes
+Yinhe,China,Long March 5,Long March 5,,Yes

@@ -33,7 +33,6 @@ ROCKET_STAGES = [
     "Launcher Production",
     "Electronics Production",
     "Launcher Transportation",
-    "Electricity Consumption",
 ]
 CONSTELLATION_STAGES = ROCKET_STAGES + ["Satellite Kr/Xe Propellant"]
 
@@ -116,7 +115,7 @@ def load_inputs():
             "mass": num(fields["Satellite mass (kg)"][i]),
             "country": meta["Country"],
             "rocket": meta["Modeled rocket"],
-            "reusable": meta["Reusable launcher"] == "Yes",
+            "planned_payload": num(meta["Planned launcher payload (t)"]),
             "in_country_means": meta["In country means"] == "Yes",
         }
     return params, factors, rockets, logistics, constellations
@@ -125,7 +124,7 @@ def load_inputs():
 # ---------------------------------------------------------------- model
 
 def amortization_factor(log, params):
-    """Eq. 6: share of full-vehicle production charged to each launch.
+    """Eq. 5: share of full-vehicle production charged to each launch.
 
     A = (1 - S1P) + S1P / R + R_A x (R - 1) / R, i.e. the first flight builds the
     whole vehicle and each of the R - 1 reflights rebuilds the expendable stages
@@ -138,9 +137,12 @@ def amortization_factor(log, params):
     return (1 - s1p) + s1p / flights + params["refurbishment_factor"] * (flights - 1) / flights
 
 
-def rocket_model(params, factors, rockets, logistics):
+def rocket_model(params, factors, rockets, logistics, transport_propellant=False):
     """Per-launch emissions for each rocket (kg CO2e) on a new vehicle, averaged over
-    the reuse life, and on a subsequent (reflown) launch."""
+    the reuse life, and on a subsequent (reflown) launch.
+
+    Transport covers the launcher's dry mass; transport_propellant=True also counts
+    the propellant mass (sensitivity case, Section 3.4)."""
     out = {}
     for name, r in rockets.items():
         log = logistics[name]
@@ -152,15 +154,11 @@ def rocket_model(params, factors, rockets, logistics):
         # Eq. 3: structure and electronics production.
         production = structure * factors["material"][material]
         electronics = dry * params["electronics_fraction"] * factors["material"]["Electronics"]
-        # Eq. 4: fabrication and assembly electricity, per kg of structural material.
-        # Electricity used to make the materials is already in the material factors.
-        key = "electricity_" + ("steel" if material == "Steel" else "aluminum_alloy")
-        electricity = structure * params[key]
-        # Eq. 8: transport of the fuelled vehicle (t) over the route (km).
+        # Eq. 7: transport of the launcher (t) over the route (km).
         mode = log["Transportation"]
         transport = 0.0
         if mode != "None":
-            mass_t = (num(r["Dry Mass"]) + num(r["Propellant"])) / 1000
+            mass_t = (num(r["Dry Mass"]) + (num(r["Propellant"]) if transport_propellant else 0)) / 1000
             transport = mass_t * float(log["Distance (km)"]) * factors["transport"][mode]
 
         share = amortization_factor(log, params)
@@ -171,11 +169,10 @@ def rocket_model(params, factors, rockets, logistics):
             "Launcher Production": production,
             "Electronics Production": electronics,
             "Launcher Transportation": transport,
-            "Electricity Consumption": electricity,
         }
-        # Eq. 5: production and electricity spread over the reuse life.
+        # Eq. 4: production spread over the reuse life.
         amortized = dict(initial)
-        for stage in ("Launcher Production", "Electronics Production", "Electricity Consumption"):
+        for stage in ("Launcher Production", "Electronics Production"):
             amortized[stage] = initial[stage] * share
         out[name] = {
             "payload": num(r["Payload Capacity"]),
@@ -189,30 +186,47 @@ def rocket_model(params, factors, rockets, logistics):
     return out
 
 
+def satellites_per_launch(c, rocket):
+    """Satellites carried per launch of the modelled rocket.
+
+    When the modelled rocket stands in for a different planned launcher, the planned
+    number per launch is scaled by the ratio of payload capacities (Section 3.6).
+    The result never exceeds what the modelled rocket can lift by mass."""
+    n = c["per_rocket"]
+    if c["planned_payload"]:
+        n = math.floor(n * rocket["payload"] / c["planned_payload"])
+    return max(1, min(n, math.floor(rocket["payload"] * 1000 / c["mass"])))
+
+
 def constellation_model(params, rockets, constellations):
     """Launches, totals (kg) and per-subscriber emissions for each constellation."""
     kr_xe = params["kr_xe_fraction"] * params["kr_xe_emission_factor"]
     out = {}
     for name, c in constellations.items():
-        per_launch = rockets[c["rocket"]]["amortized"]
-        launches = math.ceil(c["satellites"] / c["per_rocket"])
-        # Eq. 10: launches needed x per-launch emissions; Eq. 11: Kr/Xe propellant.
+        rocket = rockets[c["rocket"]]
+        per_launch = rocket["amortized"]
+        per_rocket = satellites_per_launch(c, rocket)
+        launches = math.ceil(c["satellites"] / per_rocket)
+        # Eq. 9: launches needed x per-launch emissions; Eq. 10: Kr/Xe propellant.
         total_kg = {s: launches * per_launch[s] for s in ROCKET_STAGES}
         total_kg["Satellite Kr/Xe Propellant"] = c["satellites"] * c["mass"] * kr_xe
         total_kt = {s: round_half_up(v / 1e6, 1) for s, v in total_kg.items()}
-        # Eq. 12: subscribers scale with constellation size.
+        # Eq. 11: subscribers scale with constellation size.
         subscribers_exact = c["satellites"] * params["subscribers_per_satellite"]
         subscribers = round_half_up(subscribers_exact)
         out[name] = {
             **c,
+            "per_rocket": per_rocket,
+            # Reusability follows the rocket whose emissions are charged.
+            "reusable": rocket["reusable"],
             "launches": launches,
             "subscribers": subscribers,
             "subscribers_exact": subscribers_exact,
             "per_launch_kg": per_launch,
-            "propulsion_per_launch_kg": c["per_rocket"] * c["mass"] * kr_xe,
+            "propulsion_per_launch_kg": per_rocket * c["mass"] * kr_xe,
             "total_kg": total_kg,
             "total_kt": total_kt,
-            # Eq. 13: emissions per subscriber.
+            # Eq. 12: emissions per subscriber.
             "per_subscriber": {s: v / subscribers for s, v in total_kg.items()},
         }
     return out
@@ -246,7 +260,7 @@ def build_tables(params, rockets, constellations):
         if r["reusable"]:
             initial = {s: round_half_up(v) for s, v in r["initial"].items()}
             subsequent = dict(initial)
-            for s in ("Launcher Production", "Electronics Production", "Electricity Consumption"):
+            for s in ("Launcher Production", "Electronics Production"):
                 subsequent[s] = initial[s] * r["subsequent_share"]
             reuse_rows.append([n + " Initial"] + [fmt_fixed(initial[s], 2) for s in ROCKET_STAGES])
             reuse_rows.append([n + " Subsequent"] + [fmt_fixed(subsequent[s], 2) for s in ROCKET_STAGES])
@@ -313,7 +327,8 @@ def check(tables, ref_dir):
     for name, (fmt, header, rows) in tables.items():
         path = ref_dir / name
         produced = render(fmt, header, rows)
-        expected = path.read_text(encoding="utf-8", newline="")
+        with path.open(encoding="utf-8", newline="") as f:
+            expected = f.read()
         if produced == expected:
             print(f"{name}: identical")
             continue
